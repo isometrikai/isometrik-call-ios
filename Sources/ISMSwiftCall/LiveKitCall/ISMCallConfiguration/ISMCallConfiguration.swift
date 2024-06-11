@@ -52,7 +52,7 @@ public struct ISMCallConfiguration: ISMCallConfigurationProtocol {
     public var videoCallOption: Bool
     public var callHangupTimeOnNoAnswer: TimeInterval
 
-    init(accountId: String, projectId: String, keysetId: String, licenseKey: String, appSecret: String, userSecret: String, iometrikLiveStreamUrl userToken: String, userToken userId: String, userId isometrikLiveStreamUrl: String = "wss://streaming.isometrik.io", MQTTHost: String = "connections.isometrik.io", MQTTPort: Int = 2052, videoCallOption: Bool = true, callHangupTimeOnNoAnswer: TimeInterval = 60.0) {
+    public init(accountId: String, projectId: String, keysetId: String, licenseKey: String, appSecret: String, userSecret: String, iometrikLiveStreamUrl userToken: String, userToken userId: String, userId isometrikLiveStreamUrl: String = "wss://streaming.isometrik.io", MQTTHost: String = "connections.isometrik.io", MQTTPort: Int = 2052, videoCallOption: Bool = true, callHangupTimeOnNoAnswer: TimeInterval = 60.0) {
         self.accountId = accountId
         self.projectId = projectId
         self.keysetId = keysetId
