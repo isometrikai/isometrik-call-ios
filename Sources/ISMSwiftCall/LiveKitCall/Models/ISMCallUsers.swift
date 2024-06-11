@@ -16,7 +16,7 @@ struct ISMCallUsers: Codable {
 // MARK: - User
 public struct ISMCallUser: Codable, Hashable {
     let userProfileImageURL: String
-    let userName, userIdentifier, userID: String
+    public  let userName, userIdentifier, userID: String
     let updatedAt: Int
     let notification: Bool
     let createdAt: Int
@@ -41,9 +41,9 @@ struct ISMAuthError: Codable {
 
 
 public struct ISMCallMember: Codable, Hashable {
-    let memberName, memberIdentifier, memberId: String?
-    let isPublishing, isAdmin: Bool?
-    var memberProfileImageURL : String?
+    public let memberName, memberIdentifier, memberId: String?
+    public let isPublishing, isAdmin: Bool?
+    public var memberProfileImageURL : String?
     
     
     init(memberName: String?, memberIdentifier: String?, memberId: String?, isPublishing: Bool? = false, isAdmin: Bool? = false, memberProfileImageURL: String? = nil) {

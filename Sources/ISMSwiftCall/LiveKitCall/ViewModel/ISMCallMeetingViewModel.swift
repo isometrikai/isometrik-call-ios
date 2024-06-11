@@ -7,10 +7,10 @@
 
 import Foundation
 
-class ISMCallMeetingViewModel{
+public class ISMCallMeetingViewModel{
     
     
-    func getMeetings(completion :@escaping ([ISMMeeting])->()){
+    public  func getMeetings(completion :@escaping ([ISMMeeting])->()){
         
         let request = ISMCallAPIRequest<Any>(endPoint: ISMCallMeetingEndpoints.getMeetings, requestBody: nil)
         
@@ -28,7 +28,7 @@ class ISMCallMeetingViewModel{
     
     }
     
-    func createMeeting(memberId:String,conversationId : String? = nil, callType : ISMLiveCallType = .AudioCall, completion :@escaping (ISMMeeting)->()){
+    public  func createMeeting(memberId:String,conversationId : String? = nil, callType : ISMLiveCallType = .AudioCall, completion :@escaping (ISMMeeting)->()){
         
         let requestBody = ISMMeetingRequest(members: [memberId],meetingDescription:"NA",deviceId: ISMDeviceId,customType: callType.rawValue, audioOnly: ISMLiveCallType.AudioCall == .AudioCall, conversationId: conversationId)
         
@@ -48,7 +48,7 @@ class ISMCallMeetingViewModel{
     
     }
     
-    func rejectCall(meetingId : String,completion :@escaping (ISMMeeting)->()){
+    public func rejectCall(meetingId : String,completion :@escaping (ISMMeeting)->()){
         
         let startPublishingRequest = ISMStartPublishingRequest(meetingId:meetingId , deviceId: ISMDeviceId)
         
@@ -67,7 +67,7 @@ class ISMCallMeetingViewModel{
         }
     }
     
-    func accpetCall(meetingId : String,completion :@escaping (ISMMeeting)->(),failure : @escaping ()->()){
+    public func accpetCall(meetingId : String,completion :@escaping (ISMMeeting)->(),failure : @escaping ()->()){
         
         let startPublishingRequest = ISMStartPublishingRequest(meetingId:meetingId , deviceId: ISMDeviceId)
         
@@ -87,7 +87,7 @@ class ISMCallMeetingViewModel{
     }
     
     
-    func startPublishing(meetingId : String,completion :@escaping (ISMMeeting)->()){
+    public func startPublishing(meetingId : String,completion :@escaping (ISMMeeting)->()){
         
         let startPublishingRequest = ISMStartPublishingRequest(meetingId:meetingId , deviceId: ISMDeviceId)
         
@@ -106,7 +106,7 @@ class ISMCallMeetingViewModel{
         }
     }
     
-    func fetchUsers(searchTag : String,completion :@escaping ([ISMCallUser])->()){
+    public func fetchUsers(searchTag : String,completion :@escaping ([ISMCallUser])->()){
 
         let request = ISMCallAPIRequest<Any>(endPoint: ISMCallAuthEndpoints.fetchUsers(searchTag:searchTag ), requestBody: nil)
         
@@ -123,7 +123,7 @@ class ISMCallMeetingViewModel{
         }
     }
 
-    func leaveMeeting(meetingId : String,completion :@escaping ()->()){
+    public func leaveMeeting(meetingId : String,completion :@escaping ()->()){
      
         let request = ISMCallAPIRequest<Any>(endPoint: ISMCallMeetingEndpoints.leaveMeeting(meetingId: meetingId), requestBody: nil)
         
@@ -141,7 +141,7 @@ class ISMCallMeetingViewModel{
         }
     }
     
-    func publishMessage(meetingId : String,message : String, completion :@escaping ()->()){
+    public func publishMessage(meetingId : String,message : String, completion :@escaping ()->()){
      
        let requestBody = ISMPublishMessage(deviceId: ISMDeviceId, meetingId: meetingId, messageType: "1", body: message)
         let request = ISMCallAPIRequest<Any>(endPoint: ISMCallMeetingEndpoints.publishMessage, requestBody: requestBody)
@@ -161,7 +161,7 @@ class ISMCallMeetingViewModel{
     
     
     
-    func updatePushRegisteryApnsToken(addApnsDeviceToken:Bool,apnsDeviceToken:String, completion :@escaping ()->()){
+    public func updatePushRegisteryApnsToken(addApnsDeviceToken:Bool,apnsDeviceToken:String, completion :@escaping ()->()){
         
         let endPoint = ISMCallMeetingEndpoints.updateUser
          let request =  ISMCallAPIRequest(endPoint:endPoint , requestBody: ISMUpdateUserRequest(addApnsDeviceToken: addApnsDeviceToken, apnsDeviceToken: apnsDeviceToken))

@@ -29,7 +29,7 @@ public struct ISMMeeting: Codable {
 //    let metaData: MetaData
 //    let membersPublishingCount, membersCount, meetingType: Int
     let meetingImageUrl: String?
-    let meetingId, meetingDescription, initiatorName: String?
+    public  let meetingId, meetingDescription, initiatorName: String?
     let initiatorImageUrl: String?
     let initiatorIdentifier: String?
     
