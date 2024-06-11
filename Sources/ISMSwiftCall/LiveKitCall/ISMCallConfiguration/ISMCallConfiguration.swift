@@ -17,8 +17,8 @@ public protocol ISMCallConfigurationProtocol {
     var userSecret: String { get }
     
     var isometrikLiveStreamUrl: String { get }
-    var userToken: String { get set }
-    var userId: String { get set }
+    var userToken: String? { get set }
+    var userId: String? { get set }
     var MQTTHost: String { get }
     var MQTTPort: Int { get }
     var videoCallOption: Bool { get }
@@ -29,6 +29,7 @@ public protocol ISMCallConfigurationProtocol {
 }
 
 public struct ISMCallConfiguration: ISMCallConfigurationProtocol {
+    
     mutating public func updateUserId(_ userId: String) {
         self.userId = userId
     }
@@ -43,8 +44,8 @@ public struct ISMCallConfiguration: ISMCallConfigurationProtocol {
     public let licenseKey: String
     public let appSecret: String
     public let userSecret: String
-    public var userToken: String
-    public var userId: String
+    public var userToken: String?
+    public var userId: String?
     
     public let isometrikLiveStreamUrl: String
     public var MQTTHost: String
@@ -52,14 +53,14 @@ public struct ISMCallConfiguration: ISMCallConfigurationProtocol {
     public var videoCallOption: Bool
     public var callHangupTimeOnNoAnswer: TimeInterval
 
-    public init(accountId: String, projectId: String, keysetId: String, licenseKey: String, appSecret: String, userSecret: String, iometrikLiveStreamUrl userToken: String, userToken userId: String, userId isometrikLiveStreamUrl: String = "wss://streaming.isometrik.io", MQTTHost: String = "connections.isometrik.io", MQTTPort: Int = 2052, videoCallOption: Bool = true, callHangupTimeOnNoAnswer: TimeInterval = 60.0) {
+    public init(accountId: String, projectId: String, keysetId: String, licenseKey: String, appSecret: String, userSecret: String,userId : String?,userToken : String?, iometrikLiveStreamUrl: String = "wss://streaming.isometrik.io", MQTTHost: String = "connections.isometrik.io", MQTTPort: Int = 2052, videoCallOption: Bool = true, callHangupTimeOnNoAnswer: TimeInterval = 60.0) {
         self.accountId = accountId
         self.projectId = projectId
         self.keysetId = keysetId
         self.licenseKey = licenseKey
         self.appSecret = appSecret
         self.userSecret = userSecret
-        self.isometrikLiveStreamUrl = isometrikLiveStreamUrl
+        self.isometrikLiveStreamUrl = iometrikLiveStreamUrl
         self.userToken = userToken
         self.userId = userId
         self.MQTTHost = MQTTHost
