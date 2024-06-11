@@ -12,7 +12,7 @@ import AVFAudio
 import PushKit
 
 
-class ISMCallManager : NSObject{
+public class ISMCallManager : NSObject{
     
     var backgroundTaskID : UIBackgroundTaskIdentifier?
     
@@ -317,7 +317,7 @@ extension ISMCallManager : CXProviderDelegate{
     
     
     
-    func providerDidReset(_ provider: CXProvider) {
+    public func providerDidReset(_ provider: CXProvider) {
         // Stop audio
         // End all calls because they are no longer valid
         // Remove all calls from the app's list of calls
@@ -326,7 +326,7 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     // What happens when the user accepts the call by pressing the incoming call button? You should implement the method below and call the fulfill method if the call is successful.
-    func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
+    public func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         
         // Configure audio session
         // Accept call
@@ -380,7 +380,7 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     // What happens when the user taps the reject button? Call the fail method if the call is unsuccessful. It checks the call based on the UUID. It uses the network to connect to the end call method you provide.
-    func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
+    public func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
         
         guard !callObserver.calls.isEmpty else {
             return
@@ -420,7 +420,7 @@ extension ISMCallManager : CXProviderDelegate{
         return
     }
     
-    func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
+    public func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
         
         print("***** CALL ID IN CXStartCallAction \(action.callUUID)")
         // Get call object
@@ -438,7 +438,7 @@ extension ISMCallManager : CXProviderDelegate{
         
     }
     
-    func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
+    public func provider(_ provider: CXProvider, didActivate audioSession: AVAudioSession) {
         // Called when the provider's audio session is activated
         // Restart any non-call related audio now that the app's audio session has been
         // deactivated after having its priority restored to normal.
@@ -449,13 +449,13 @@ extension ISMCallManager : CXProviderDelegate{
         }
     }
     
-    func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
+    public func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
         // Called when the provider's audio session is deactivated
         self.callConnectedTime = nil
         print("** Called when the provider's audio session is deactivated **")
     }
     
-    func provider(_ provider: CXProvider, timedOutPerforming action: CXAction) {
+    public func provider(_ provider: CXProvider, timedOutPerforming action: CXAction) {
         // Called when an action times out
         print("**Called when an action times out **")
     }
@@ -477,7 +477,7 @@ extension ISMCallManager : CXProviderDelegate{
     
     
     
-    func provider(_ provider: CXProvider, perform action: CXSetHeldCallAction) {
+    public func provider(_ provider: CXProvider, perform action: CXSetHeldCallAction) {
         // Update holding state
         // Mute the call when it's on hold
         // Stop the video when it's a video call
@@ -485,7 +485,7 @@ extension ISMCallManager : CXProviderDelegate{
         action.fulfill()
     }
     
-    func provider(_ provider: CXProvider, perform action: CXSetMutedCallAction) {
+    public func provider(_ provider: CXProvider, perform action: CXSetMutedCallAction) {
         // Stop/start audio
         if !callIDs.isEmpty{
             ISMLiveCallView.shared.isMute = action.isMuted

@@ -14,7 +14,7 @@ struct ISMCallUsers: Codable {
 }
 
 // MARK: - User
-struct ISMCallUser: Codable, Hashable {
+public struct ISMCallUser: Codable, Hashable {
     let userProfileImageURL: String
     let userName, userIdentifier, userID: String
     let updatedAt: Int
