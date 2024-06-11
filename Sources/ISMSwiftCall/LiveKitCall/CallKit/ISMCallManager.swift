@@ -197,11 +197,11 @@ extension ISMCallManager{
 }
 
 // PushRegistry methods
-extension ISMCallManager{
+public extension ISMCallManager{
     
     
     
-   public func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
+    func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
         guard type == .voIP else {
             return
         }
@@ -211,7 +211,7 @@ extension ISMCallManager{
         self.updatePushRegisteryToken()
     }
     
-    public  func updatePushRegisteryToken(){
+    func updatePushRegisteryToken(){
         if !ISMConfiguration.shared.getUserToken().isEmpty ,let token =  ISMPushKitToken.shared.newToken,   ISMPushKitToken.shared.needToUpdate(){
             viewModel.updatePushRegisteryApnsToken(addApnsDeviceToken: true, apnsDeviceToken: token) {
                 ISMPushKitToken.shared.updatedOnServer()
@@ -223,7 +223,7 @@ extension ISMCallManager{
     
     
     
-    public func pushRegistry(_ registry: PKPushRegistry,
+    func pushRegistry(_ registry: PKPushRegistry,
                       didReceiveIncomingPushWith payload: PKPushPayload,
                       for type: PKPushType,
                       completion: (() -> Void)?){
@@ -295,7 +295,7 @@ extension ISMCallManager{
         
     }
     
-    public  func invalidatePushKitAPNSDeviceToken(_ registry: PKPushRegistry? = nil, type: PKPushType){
+    func invalidatePushKitAPNSDeviceToken(_ registry: PKPushRegistry? = nil, type: PKPushType){
         guard type == .voIP, let token = ISMPushKitToken.shared.token else {
             return
         }
