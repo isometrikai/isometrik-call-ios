@@ -18,10 +18,27 @@ public struct ISMMeetingRequest: Codable {
     public  var meetingDescription: String = "NA"
     public var hdMeeting = false
     public var enableRecording: Bool = false
-    public var deviceId : String = ISMDeviceId
+    public var deviceId : String
     public var customType: String
     public var meetingType: Int = 0
     public  var autoTerminate = true
     public var audioOnly: Bool
     public var conversationId : String?
+    
+   public init(selfHosted: Bool, pushNotifications: Bool, metaData: [String : String], members: [String], meetingImageUrl: String, meetingDescription: String, hdMeeting: Bool = false, enableRecording: Bool, deviceId: String = ISMDeviceId, customType: String, meetingType: Int, autoTerminate: Bool = true, audioOnly: Bool, conversationId: String? = nil) {
+        self.selfHosted = selfHosted
+        self.pushNotifications = pushNotifications
+        self.metaData = metaData
+        self.members = members
+        self.meetingImageUrl = meetingImageUrl
+        self.meetingDescription = meetingDescription
+        self.hdMeeting = hdMeeting
+        self.enableRecording = enableRecording
+        self.deviceId = deviceId
+        self.customType = customType
+        self.meetingType = meetingType
+        self.autoTerminate = autoTerminate
+        self.audioOnly = audioOnly
+        self.conversationId = conversationId
+    }
 }

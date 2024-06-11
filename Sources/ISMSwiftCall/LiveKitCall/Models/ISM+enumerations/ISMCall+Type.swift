@@ -13,7 +13,7 @@ public enum ISMLiveCallType:String{
     
     
     
-    var type : String{
+    public  var type : String{
         switch self{
         case .AudioCall :
             return "AudioCall"

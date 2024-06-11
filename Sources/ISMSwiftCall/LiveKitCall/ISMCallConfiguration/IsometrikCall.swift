@@ -8,7 +8,7 @@
 import Foundation
 public class IsometrikCall {
     
-     init(configuration: ISMCallConfiguration) {
+    public init(configuration: ISMCallConfiguration) {
          ISMConfiguration.shared.setCallConfiguration(configuration: configuration)
     }
     
