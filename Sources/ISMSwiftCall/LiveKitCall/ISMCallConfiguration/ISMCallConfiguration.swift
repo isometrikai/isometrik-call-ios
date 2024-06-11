@@ -28,29 +28,29 @@ public protocol ISMCallConfigurationProtocol {
     mutating func updateUserToken(_ userToken: String)
 }
 
-struct ISMCallConfiguration: ISMCallConfigurationProtocol {
-    mutating func updateUserId(_ userId: String) {
+public struct ISMCallConfiguration: ISMCallConfigurationProtocol {
+    mutating public func updateUserId(_ userId: String) {
         self.userId = userId
     }
     
-    mutating func updateUserToken(_ userToken: String) {
+    mutating public func updateUserToken(_ userToken: String) {
         self.userToken = userToken
     }
     
-    let accountId: String
-    let projectId: String
-    let keysetId: String
-    let licenseKey: String
-    let appSecret: String
-    let userSecret: String
-    var userToken: String
-    var userId: String
+    public let accountId: String
+    public let projectId: String
+    public let keysetId: String
+    public let licenseKey: String
+    public let appSecret: String
+    public let userSecret: String
+    public var userToken: String
+    public var userId: String
     
-    let isometrikLiveStreamUrl: String
-    var MQTTHost: String
-    var MQTTPort: Int
-    var videoCallOption: Bool
-    var callHangupTimeOnNoAnswer: TimeInterval
+    public let isometrikLiveStreamUrl: String
+    public var MQTTHost: String
+    public var MQTTPort: Int
+    public var videoCallOption: Bool
+    public var callHangupTimeOnNoAnswer: TimeInterval
 
     init(accountId: String, projectId: String, keysetId: String, licenseKey: String, appSecret: String, userSecret: String, iometrikLiveStreamUrl userToken: String, userToken userId: String, userId isometrikLiveStreamUrl: String = "wss://streaming.isometrik.io", MQTTHost: String = "connections.isometrik.io", MQTTPort: Int = 2052, videoCallOption: Bool = true, callHangupTimeOnNoAnswer: TimeInterval = 60.0) {
         self.accountId = accountId
