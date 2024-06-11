@@ -29,7 +29,7 @@ public class ISMCallManager : NSObject{
     var callAnsweredByDeviceId : String?
     
     // 1
-    static let shared = ISMCallManager()
+    public static let shared = ISMCallManager()
     
     
     
