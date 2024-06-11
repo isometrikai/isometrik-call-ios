@@ -183,9 +183,9 @@ enum ISMCallAPIError: Error {
 }
 
 
-struct ISMErrorMessage : Codable{
-    let error : String?
-    let errorCode : Int?
+public struct ISMErrorMessage : Codable{
+    public  let error : String?
+    public  let errorCode : Int?
 }
 
 public enum ISMResult<T,ErrorData>{

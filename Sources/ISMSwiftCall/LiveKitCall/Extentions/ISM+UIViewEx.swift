@@ -39,7 +39,7 @@ extension UIView {
 extension UIViewController{
     
     
-    func showISMCallErrorAlerts(title : String? = nil, message : String){
+   public func showISMCallErrorAlerts(title : String? = nil, message : String){
         DispatchQueue.main.async {
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: "OK", style: .default,handler: nil)

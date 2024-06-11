@@ -9,6 +9,7 @@ import Foundation
 
 public class ISMCallMeetingViewModel{
     
+    public init() {}
     
     public  func getMeetings(completion :@escaping ([ISMMeeting])->()){
         

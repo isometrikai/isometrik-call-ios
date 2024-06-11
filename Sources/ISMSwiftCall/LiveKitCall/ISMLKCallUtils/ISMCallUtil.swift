@@ -9,6 +9,6 @@ import Foundation
 import UIKit
 
 
-var ISMDeviceId : String{
+public var ISMDeviceId : String{
    return UIDevice.current.identifierForVendor!.uuidString
 }

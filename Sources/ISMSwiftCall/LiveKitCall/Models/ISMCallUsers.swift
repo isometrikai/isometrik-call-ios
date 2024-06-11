@@ -46,7 +46,7 @@ public struct ISMCallMember: Codable, Hashable {
     public var memberProfileImageURL : String?
     
     
-    init(memberName: String?, memberIdentifier: String?, memberId: String?, isPublishing: Bool? = false, isAdmin: Bool? = false, memberProfileImageURL: String? = nil) {
+    public init(memberName: String?, memberIdentifier: String?, memberId: String?, isPublishing: Bool? = false, isAdmin: Bool? = false, memberProfileImageURL: String? = nil) {
         self.memberName = memberName
         self.memberIdentifier = memberIdentifier
         self.memberId = memberId
