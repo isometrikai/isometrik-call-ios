@@ -14,7 +14,7 @@ public class ISMConfiguration{
     
     private init() {}
     
-     func setCallConfiguration(configuration: ISMCallConfiguration) {
+    public  func setCallConfiguration(configuration: ISMCallConfiguration) {
         callConfiguration = configuration
     }
     public func setUserId(_ userId: String) {
