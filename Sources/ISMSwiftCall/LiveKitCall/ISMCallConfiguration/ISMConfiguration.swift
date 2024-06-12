@@ -18,7 +18,7 @@ public class ISMConfiguration{
         callConfiguration = configuration
     }
     public func setUserId(_ userId: String) {
-         callConfiguration?.userId = userId
+        callConfiguration?.updateUserId(userId)
     }
     
     public func getUserId() -> String {
@@ -30,7 +30,7 @@ public class ISMConfiguration{
     }
     
     public func setUserToken(_ userToken: String) {
-        callConfiguration?.userToken = userToken
+        callConfiguration?.updateUserToken(userToken)
     }
     public func getUserToken() -> String {
         guard let userToken = callConfiguration?.userToken else {
@@ -60,6 +60,7 @@ public class ISMConfiguration{
     }
     public func userSecret() -> String {
         guard let userSecret = callConfiguration?.userSecret else {
+            print("User Secret is nil. Please set it before calling userSecret().")
                    return ""
                }
                return userSecret

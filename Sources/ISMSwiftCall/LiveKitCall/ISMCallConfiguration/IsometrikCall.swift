@@ -29,5 +29,14 @@ public class IsometrikCall {
         ISMConfiguration.shared.setUserToken(userToken)
     }
     
+    public func createMqttConnection(){
+        
+        guard !ISMConfiguration.shared.getUserId().isEmpty else {
+            print("Cannot start call: User ID is not set.")
+            return
+        }
+        ISMMQTTManager.shared.connect(clientId: ISMConfiguration.shared.getUserId())
+    }
+    
 }
 

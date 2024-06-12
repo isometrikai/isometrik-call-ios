@@ -9,20 +9,20 @@ import CocoaMQTT
 import Foundation
 import UIKit
 
-open class ISMMQTTManager : NSObject {
+public class ISMMQTTManager : NSObject {
     
     
     
     //MARK:  - PROPERTIES
     var mqtt: CocoaMQTT?
     var clientId : String = ""
-    static let shared = ISMMQTTManager()
+    public   static let shared = ISMMQTTManager()
     let deviceId = ISMDeviceId
 
     var hasConnected : Bool = false
     
     //MARK: - CONFIGURE
-    func connect(clientId : String){
+    public  func connect(clientId : String){
         self.clientId = clientId
         mqtt = CocoaMQTT(clientID: clientId + (deviceId ), host: ISMConfiguration.shared.getMQTTHost(), port: UInt16(ISMConfiguration.shared.getMQTTPort()))
         mqtt?.username = "2" + ISMConfiguration.shared.getAccountId() + ISMConfiguration.shared.getProjectId()
@@ -45,7 +45,7 @@ open class ISMMQTTManager : NSObject {
         }
     }
     
-    func unSubscribe(){
+    public  func unSubscribe(){
         let client = self.clientId
         let messageTopic =
         "/\(ISMConfiguration.shared.getAccountId())/\(ISMConfiguration.shared.getProjectId())/Message/\(client)"
