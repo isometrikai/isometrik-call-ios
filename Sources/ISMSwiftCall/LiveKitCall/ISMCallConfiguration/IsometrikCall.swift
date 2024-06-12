@@ -7,7 +7,7 @@
 
 import Foundation
 public class IsometrikCall {
-    static let shared = IsometrikCall()
+    public static let shared = IsometrikCall()
     private var configuration: ISMCallConfiguration?
 
     private init() {}
