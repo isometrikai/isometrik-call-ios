@@ -21,7 +21,7 @@ protocol ISMExpandableCallControlsViewDelegate{
 }
 
 
-class ISMExpandableCallControlsView: UIView {
+class ISMExpandableCallControlsView: UIView , AppearanceProvider{
     
     let muteButton = UIButton()
     let speaker = UIButton()
@@ -30,7 +30,7 @@ class ISMExpandableCallControlsView: UIView {
     
     lazy var enableVideoButton : UIButton = {
         let video = UIButton()
-        video.setImage(LKCallIcons.videoOff, for: .normal)
+        video.setImage(appearance.images.offVideo, for: .normal)
         video.heightAnchor.constraint(equalToConstant: 50).isActive = true
      //   video.widthAnchor.constraint(equalToConstant: 50).isActive = true
         video.autoresizesSubviews = true
@@ -92,27 +92,27 @@ class ISMExpandableCallControlsView: UIView {
     lazy var callControlStackView : UIStackView = {
         
         let endCall = UIButton()
-        endCall.setImage(LKCallIcons.endCall, for: .normal)
+        endCall.setImage(appearance.images.endCall, for: .normal)
         endCall.heightAnchor.constraint(equalToConstant: 50).isActive = true
       //  endCall.widthAnchor.constraint(equalToConstant: 50).isActive = true
         endCall.autoresizesSubviews = true
         endCall.addTarget(self, action: #selector(endCall(sender: )), for: .touchUpInside)
         
         
-        muteButton.setImage(LKCallIcons.microphoneOn, for: .normal)
+        muteButton.setImage(appearance.images.onMic, for: .normal)
         muteButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
        // muteButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
         muteButton.autoresizesSubviews = true
         muteButton.addTarget(self, action: #selector(muteMicrophone(sender: )), for: .touchUpInside)
         
-        speaker.setImage(LKCallIcons.speakerOff, for: .normal)
+        speaker.setImage(appearance.images.speakerOff, for: .normal)
         speaker.heightAnchor.constraint(equalToConstant: 50).isActive = true
       //  speaker.widthAnchor.constraint(equalToConstant: 50).isActive = true
         speaker.autoresizesSubviews = true
         speaker.isOpaque = true
         speaker.addTarget(self, action: #selector(switchAudioOutput(sender: )), for: .touchUpInside)
         
-        switchCamera.setImage(LKCallIcons.switchTheCamera, for: .normal)
+        switchCamera.setImage(appearance.images.flipeCamera, for: .normal)
         switchCamera.heightAnchor.constraint(equalToConstant: 50).isActive = true
      //   switchCamera.widthAnchor.constraint(equalToConstant: 50).isActive = true
         switchCamera.autoresizesSubviews = true
@@ -190,14 +190,14 @@ class ISMExpandableCallControlsView: UIView {
     
     func updateVideoEnabledStatus(isEnabled :Bool){
         enableVideoButton.isSelected =  isEnabled
-        enableVideoButton.setImage(isEnabled ? LKCallIcons.videoOn : LKCallIcons.videoOff , for: .normal)
+        enableVideoButton.setImage(isEnabled ? appearance.images.onVideo : appearance.images.offVideo , for: .normal)
     }
     
     func updateMuteStatus(isMute :Bool){
-        muteButton.setImage(!isMute ? LKCallIcons.microphoneOn : LKCallIcons.microphoneOff , for: .normal)
+        muteButton.setImage(!isMute ? appearance.images.onMic : appearance.images.offMic , for: .normal)
     }
     func updateSpeakerStatus(isOn :Bool){
-        speaker.setImage(isOn ? LKCallIcons.speakerOn : LKCallIcons.speakerOff , for: .normal)
+        speaker.setImage(isOn ? appearance.images.speakerOn : appearance.images.speakerOff , for: .normal)
     }
     
     @objc func switchAudioOutput(sender : UIButton){

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class ISMCustomNavigationBar: UIView {
+class ISMCustomNavigationBar: UIView,AppearanceProvider {
     
     
     var delegate : ISMCustomNavigationBarDelegate?
@@ -36,7 +36,7 @@ class ISMCustomNavigationBar: UIView {
         backgroundColor =  .clear
         let backButton = UIButton()
         addSubview(backButton)
-        backButton.setImage(LKCallIcons.backIcon, for: .normal)
+        backButton.setImage(appearance.images.back, for: .normal)
         backButton.translatesAutoresizingMaskIntoConstraints = false
         backButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
         backButton.widthAnchor.constraint(equalToConstant: 44).isActive = true
