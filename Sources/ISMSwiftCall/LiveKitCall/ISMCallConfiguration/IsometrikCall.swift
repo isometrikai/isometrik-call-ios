@@ -19,6 +19,7 @@ public class IsometrikCall {
     
     public func configure(with configuration: ISMCallConfiguration) {
           self.configuration = configuration
+        ISMConfiguration.shared.setCallConfiguration(configuration: configuration)
       }
     
     public func getConfiguration() -> ISMCallConfiguration? {
