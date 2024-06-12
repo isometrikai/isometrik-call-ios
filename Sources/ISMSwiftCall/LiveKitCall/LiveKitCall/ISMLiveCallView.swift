@@ -356,7 +356,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate {
             print("Setting category to AVAudioSessionCategoryPlayback failed.")
         }
         
-        if let path = Bundle.main.path(forResource: "phone_ringer", ofType: "mp3") {
+        if let path = Bundle.ismSwiftCall.path(forResource: "phone_ringer", ofType: "mp3") {
             let url = URL(fileURLWithPath: path)
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: url)
