@@ -11,7 +11,7 @@ public class ISMAuthViewModel{
     
     public init() {}
     
-    public  func loginWith(email : String, password : String,completion :@escaping (ISMErrorMessage?)->()){
+    public func loginWith(email : String, password : String,completion :@escaping (ISMCallAuth?)->(),failure:@escaping (ISMErrorMessage)->()){
         
         let endPoint = ISMCallAuthEndpoints.authenticate
         let request =  ISMCallAPIRequest(endPoint:endPoint , requestBody: ISMAuthRequest(userIdentifier: email, password : password))
@@ -19,13 +19,10 @@ public class ISMAuthViewModel{
         ISMCallAPIManager.sendRequest(request: request) {  (result : ISMResult<ISMCallAuth, ISMCallAPIError>) in
             switch result{
             case .success(let user,_) :
-                ISMConfiguration.shared.setUserId(user.userId)
-                ISMConfiguration.shared.setUserToken(user.userToken)
-                ISMCallManager.shared.updatePushRegisteryToken()
-                completion(nil)
-            case .failure(_) :
+                completion(user)
+            case .failure(let error) :
                 print("Error")
-                completion(ISMErrorMessage(error: "Failed", errorCode: 412))
+                failure(ISMErrorMessage(error: "Failed", errorCode: 412))
             }
         }
     

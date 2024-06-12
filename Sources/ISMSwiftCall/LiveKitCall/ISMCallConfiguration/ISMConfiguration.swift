@@ -7,21 +7,21 @@
 
 import Foundation
 
-public class ISMConfiguration{
-    public static let shared = ISMConfiguration()
+ class ISMConfiguration{
+     static let shared = ISMConfiguration()
     
     private var callConfiguration: ISMCallConfiguration?
     
     private init() {}
     
-    public  func setCallConfiguration(configuration: ISMCallConfiguration) {
+      func setCallConfiguration(configuration: ISMCallConfiguration) {
         callConfiguration = configuration
     }
-    public func setUserId(_ userId: String) {
+     func setUserId(_ userId: String) {
         callConfiguration?.updateUserId(userId)
     }
     
-    public func getUserId() -> String {
+     func getUserId() -> String {
         guard let userId = callConfiguration?.userId else {
                    print("Isometrik User ID is nil. Please set it before calling getUserId().")
                    return ""
@@ -29,10 +29,10 @@ public class ISMConfiguration{
                return userId
     }
     
-    public func setUserToken(_ userToken: String) {
+     func setUserToken(_ userToken: String) {
         callConfiguration?.updateUserToken(userToken)
     }
-    public func getUserToken() -> String {
+     func getUserToken() -> String {
         guard let userToken = callConfiguration?.userToken else {
                    print("Isometrik User Token is nil. Please set it before calling getUserToken().")
                    return ""
@@ -40,25 +40,25 @@ public class ISMConfiguration{
                return userToken
     }
     
-    public func videoCallOptionEnabled() -> Bool {
+     func videoCallOptionEnabled() -> Bool {
         return callConfiguration?.videoCallOption ?? false
     }
     
-    public func appSecret() -> String {
+     func appSecret() -> String {
         guard let appSecret = callConfiguration?.appSecret else {
                    print("App Secret is nil. Please set it before calling appSecret().")
                    return ""
                }
                return appSecret
     }
-    public func licenseKey() -> String {
+     func licenseKey() -> String {
         guard let licenseKey = callConfiguration?.licenseKey else {
                    print("license Key is nil. Please set it before calling licenseKey().")
                    return ""
                }
                return licenseKey
     }
-    public func userSecret() -> String {
+     func userSecret() -> String {
         guard let userSecret = callConfiguration?.userSecret else {
             print("User Secret is nil. Please set it before calling userSecret().")
                    return ""
@@ -66,34 +66,34 @@ public class ISMConfiguration{
                return userSecret
     }
     
-    public func getAccountId() -> String{
+     func getAccountId() -> String{
         
         return callConfiguration?.accountId ?? ""
     }
     
-    public func getKeySetId() -> String{
+     func getKeySetId() -> String{
         return callConfiguration?.keysetId ?? ""
     }
     
-    public func getProjectId() -> String{
+     func getProjectId() -> String{
         
         return callConfiguration?.projectId ?? ""
     }
     
-    public func getMQTTHost() -> String{
+     func getMQTTHost() -> String{
         return callConfiguration?.MQTTHost ?? ""
     }
-    public func getMQTTPort() -> Int{
+     func getMQTTPort() -> Int{
         
         return callConfiguration?.MQTTPort ?? 2052
     }
     
-    public func getCallHangUpTime() -> TimeInterval{
+     func getCallHangUpTime() -> TimeInterval{
         
         return callConfiguration?.callHangupTimeOnNoAnswer ?? 60.0
     }
     
-    public func getIsometrikLiveStreamUrl() -> String{
+     func getIsometrikLiveStreamUrl() -> String{
         return callConfiguration?.isometrikLiveStreamUrl ?? ""
         
     }

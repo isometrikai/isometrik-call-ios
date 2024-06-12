@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct ISMCallAuth: Codable {
-    let userToken, userId, msg: String
+public struct ISMCallAuth: Codable {
+    public  let userToken, userId, msg: String
     
     enum CodingKeys: String, CodingKey {
         case userToken
