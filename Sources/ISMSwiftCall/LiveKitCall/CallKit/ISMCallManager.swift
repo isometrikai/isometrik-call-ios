@@ -147,7 +147,8 @@ extension ISMCallManager{
     
     // Start the call outgoing call if it is accepted on other end
     func startTheCall(){
-        callConnectedTime = Date().addingTimeInterval(-1)
+        // add -2 to assume call is connected early to sync the time on incoming side.
+        callConnectedTime = Date().addingTimeInterval(-2)
         self.cancelHangupTimer()
         self.outgoingCallID = nil // clear the outgoingCallId to avoid the hangup case of no answer
         self.provider.reportOutgoingCall(with: ISMCallManager.shared.callIDs.first!, connectedAt: callConnectedTime)
