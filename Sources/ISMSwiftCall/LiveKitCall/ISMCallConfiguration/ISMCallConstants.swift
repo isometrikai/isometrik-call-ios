@@ -9,7 +9,7 @@ import Foundation
 
 struct ISMCallConstants{
 
-    static let connectingText = "Connecting ......"
+    static let connectingText = "Connecting..."
     
 }
 

@@ -251,18 +251,23 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public Methods
-    func configure(withName name: String, profileImageUrl: String?, status : ISMCallStatus?, callStartTime : Date?) {
-        self.startTime = ISMCallManager.shared.callConnectedTime ?? Date()
+    func configure(withName name: String, profileImageUrl: String?, status : ISMCallStatus?) {
+        
         nameLabel.text = name
         
         if status == .started{
             timer?.invalidate()
-            startTimer()
+            if let time = ISMCallManager.shared.callConnectedTime{
+                self.startTime = time
+                startTimer()
+            }else{
+                timerLabel.text = ISMCallConstants.connectingText
+            }
+          
         }else if let status
         {
             timerLabel.text = status.rawValue
         }
-        
         
         profileImageView.setImage(urlString:profileImageUrl )
     }

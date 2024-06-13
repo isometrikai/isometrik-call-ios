@@ -12,7 +12,6 @@ import AVFoundation
 
 class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvider {
     
-    var callStartTime : Date?
     private var remoteParticipants = [Participant]()
     var customNavBar : ISMCustomNavigationBar?
     var callType : ISMLiveCallType = .AudioCall
@@ -75,8 +74,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         return privateShared!
     }
     
-    func configure( frame : CGRect, rtcToken: String, meetingId : String? = nil,callType : ISMLiveCallType = .AudioCall, isInitiator : Bool,callStartTime : Date?) {
-        self.callStartTime = callStartTime
+    func configure( frame : CGRect, rtcToken: String, meetingId : String? = nil,callType : ISMLiveCallType = .AudioCall, isInitiator : Bool) {
         self.rtcToken = rtcToken
         self.meetingId = meetingId
         self.callType = callType
@@ -117,14 +115,12 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     private init( frame : CGRect, rtcToken: String, meetingId : String? = nil) {
         self.rtcToken = rtcToken
         self.meetingId = meetingId
-        self.callStartTime = nil
         super.init(frame: frame)
     }
     
     private override init(frame: CGRect) {
         self.rtcToken = ""
         self.meetingId = nil
-        self.callStartTime = nil
         super.init(frame: frame)
     }
     
@@ -759,7 +755,7 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
         
         if callType == .AudioCall{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMAudioCallCollectionViewCell", for: indexPath) as! ISMAudioCallCollectionViewCell
-            cell.configure(withName: ISMCallManager.shared.member?.memberName ??   ISMCallManager.shared.member?.memberIdentifier ?? "Unknown", profileImageUrl: ISMCallManager.shared.member?.memberProfileImageURL , status: self.callStatus, callStartTime: callStartTime)
+            cell.configure(withName: ISMCallManager.shared.member?.memberName ??   ISMCallManager.shared.member?.memberIdentifier ?? "Unknown", profileImageUrl: ISMCallManager.shared.member?.memberProfileImageURL , status: self.callStatus)
             return cell
         }else{
             

@@ -123,7 +123,6 @@ extension ISMCallManager{
         let handle = CXHandle(type: .generic, value: handleName)
         
         provider.setDelegate(self, queue: nil)
-        
         let newCall = UUID()
         
         outgoingCallID = newCall
@@ -148,9 +147,10 @@ extension ISMCallManager{
     
     // Start the call outgoing call if it is accepted on other end
     func startTheCall(){
+        callConnectedTime = Date().addingTimeInterval(-1)
         self.cancelHangupTimer()
         self.outgoingCallID = nil // clear the outgoingCallId to avoid the hangup case of no answer
-        self.provider.reportOutgoingCall(with: ISMCallManager.shared.callIDs.first!, connectedAt: Date())
+        self.provider.reportOutgoingCall(with: ISMCallManager.shared.callIDs.first!, connectedAt: callConnectedTime)
     }
     
     /// To report a call without the Pushkit.
@@ -354,6 +354,7 @@ extension ISMCallManager : CXProviderDelegate{
                 self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
             }
             if let id = self.callDetails?.meetingId{
+                self.callConnectedTime = Date()
                 self.cancelHangupTimer()
                 self.callActiveOnDeviceId = ISMDeviceId
                 self.viewModel.accpetCall(meetingId: id) { response in
@@ -364,7 +365,7 @@ extension ISMCallManager : CXProviderDelegate{
                     self.pushLiveCallView(rtcToken: rtcToken, meetingID: id, callType: self.callDetails?.callType() ?? .AudioCall)
                 }failure: {
                     // If meeting is already Ended
-                    self.endCall(callUUID:self.callIDs.first ?? UUID())
+                  //  self.endCall(callUUID:self.callIDs.first ?? UUID())
                 }
             }
             // End the task assertion.
@@ -459,17 +460,10 @@ extension ISMCallManager : CXProviderDelegate{
         // Called when the provider's audio session is activated
         // Restart any non-call related audio now that the app's audio session has been
         // deactivated after having its priority restored to normal.
-        
-        if outgoingCallID == nil{
-            /* Only if it is incoming call not for outgoing call. For outgoing callConnected time will update on start of the call*/
-            callConnectedTime = Date()
-        }
     }
     
     public func provider(_ provider: CXProvider, didDeactivate audioSession: AVAudioSession) {
         // Called when the provider's audio session is deactivated
-        self.callConnectedTime = nil
-        print("** Called when the provider's audio session is deactivated **")
     }
     
     public func provider(_ provider: CXProvider, timedOutPerforming action: CXAction) {
@@ -524,6 +518,7 @@ extension ISMCallManager : CXProviderDelegate{
             guard let rtcToken = callDetails.rtcToken, let meetingId = callDetails.meetingId else{
                 return
             }
+            self.callConnectedTime = nil
             ISMCallManager.shared.member = callUser
             self.reportOutgoingCall(handleName: callUser.memberName ?? callUser.memberIdentifier ?? "",token: rtcToken,meetingId: meetingId, videoEnabled: callType == .VideoCall)
             ISMCallManager.shared.callDetails = callDetails
@@ -587,7 +582,7 @@ extension ISMCallManager : CXProviderDelegate{
             let panGesture = UIPanGestureRecognizer(target: self, action: #selector(self.panGestureHandlerForDraggableView))
             panGesture.isEnabled = false
             let liveKit = ISMLiveCallView.shared
-            liveKit.configure(frame:window.bounds , rtcToken: rtcToken,meetingId:meetingID,callType: callType, isInitiator: isInitiator, callStartTime: self.callConnectedTime)
+            liveKit.configure(frame:window.bounds , rtcToken: rtcToken,meetingId:meetingID,callType: callType, isInitiator: isInitiator)
             liveKit.panGesture = panGesture
             liveKit.addGestureRecognizer(panGesture)
             window.addSubview(liveKit)
