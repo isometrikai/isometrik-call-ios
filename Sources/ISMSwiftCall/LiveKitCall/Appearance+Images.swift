@@ -50,3 +50,31 @@ public extension Appearance {
         
     }
 }
+
+
+public extension Appearance {
+    struct SoundFiles {
+        /// A private internal function that will safely load an image from the bundle or return a circle image as backup
+        /// - Parameter imageName: The required image name to load from the bundle
+        /// - Returns: A UIImage that is either the correct image from the bundle or backup circular image
+        private static func loadSoundFileSafely(with soundName: String) -> String {
+        
+            if let path = Bundle.ismSwiftCall.path(forResource: soundName, ofType: "mp3") {
+                return path
+            } else {
+                print(
+                    """
+                    \(soundName) path has failed to load from the bundle please make sure it's included in your resources folder.
+                    """
+                )
+                return ""
+            }
+        }
+        
+        
+        // MARK: - General
+        
+        public var ringer : String = loadSoundFileSafely(with: "phone_ringer")
+        
+    }
+}

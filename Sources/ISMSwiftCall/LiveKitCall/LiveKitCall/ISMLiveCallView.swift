@@ -10,7 +10,7 @@ import UIKit
 import LiveKit
 import AVFoundation
 
-class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate {
+class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvider {
     
     var callStartTime : Date?
     private var remoteParticipants = [Participant]()
@@ -350,14 +350,17 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate {
     func playAudio(){
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.playback)
+            try audioSession.setCategory(.soloAmbient)
               try audioSession.setActive(true)
         } catch {
             print("Setting category to AVAudioSessionCategoryPlayback failed.")
         }
         
-        if let path = Bundle.ismSwiftCall.path(forResource: "phone_ringer", ofType: "mp3") {
-            let url = URL(fileURLWithPath: path)
+        
+        if !appearance.soundFiles.ringer.isEmpty {
+        
+            
+            let url = URL(fileURLWithPath: appearance.soundFiles.ringer)
             do {
                 audioPlayer = try AVAudioPlayer(contentsOf: url)
                 audioPlayer?.numberOfLoops = -1 /* -1 means infinite loop*/
@@ -366,6 +369,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate {
             } catch {
                 print("Error loading audio file: \(error.localizedDescription)")
             }
+        }else{
+            print("PATH : is Nill")
         }
     }
     

@@ -22,10 +22,10 @@ let package = Package(
         .target(
             name: "ISMSwiftCall",
             dependencies: [ .product(name: "Kingfisher", package: "kingfisher"),
-                .product(name: "LiveKit", package: "client-sdk-swift"),
+                            .product(name: "LiveKit", package: "client-sdk-swift"),
                             .product(name: "CocoaMQTT", package: "cocoamqtt"),
-                            .product(name: "SwiftyJSON", package: "swiftyjson"),],
-            resources: [.process("Resources")]
+                            .product(name: "SwiftyJSON", package: "swiftyjson")],
+            resources: [.process("Sounds")]
             ),
     ]
 )

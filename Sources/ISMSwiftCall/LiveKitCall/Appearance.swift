@@ -14,6 +14,8 @@ public struct Appearance {
     ///
     /// By providing different object or changing individual images, you can change the look of the views.
     public var images = Images()
+    
+    public var soundFiles = SoundFiles()
 
     /// Provider for custom localization which is dependent on App Bundle.
     public var localizationProvider: (_ key: String, _ table: String) -> String = { key, table in
