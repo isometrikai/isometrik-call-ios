@@ -42,9 +42,13 @@ To enable PushKit for receiving VoIP (Voice over IP) notifications, follow these
    
 # MQTT Connection
    
-  Initilaise the MQTT Connecton on landing page or home page for a active user seesion. use below method.
+  - To initialize the MQTT connection for an active user session, use the following method on your landing page or required view/controller:
   
-    ISMMQTTManager.shared.connect(clientId: ISMCallConfiguration.userId!)
+     ISMMQTTManager.shared.connect(clientId: "pass the userId")
+    
+  - If you are already using the Isometrik MQTT service and need to process data responses triggered on an MQTT topic, use the CallEventHandler class to handle the events. Pass the payload received from the MQTT message to the handleCallEvents method:
+    
+     CallEventHandler.handleCallEvents(payload: message.payload)
    
 
 # Making Calls

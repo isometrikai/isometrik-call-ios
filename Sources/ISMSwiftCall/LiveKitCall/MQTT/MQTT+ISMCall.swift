@@ -7,11 +7,11 @@
 
 import Foundation
 
-extension ISMMQTTManager {
+struct CallEventHandler {
     
     
-    func handleTheMeetingEvents(payload : [UInt8]){
-        let meeting : ISMMeeting
+    static func handleCallEvents(payload : [UInt8]){
+        let meeting : ISMMeeting?
         let data = Data(payload)
         do {
             // Decode Data into your Codable struct
@@ -19,14 +19,12 @@ extension ISMMQTTManager {
                 print(jsonDict)
             }
             meeting = try JSONDecoder().decode(ISMMeeting.self, from: data)
-
-           print(meeting)
         } catch {
-            return
+            meeting = nil
             print("Error decoding data: \(error)")
         }
         
-        switch ISMMeetingActions(rawValue: meeting.action ?? ""){
+        switch ISMMeetingActions(rawValue: meeting?.action ?? ""){
             
         case .meetingCreated :
            
@@ -34,30 +32,32 @@ extension ISMMQTTManager {
         //    ISMCallManager.shared.reportIncomingCall(callDetails:meeting )
         case .meetingEnded:
             //End Call for everyone
-            if let callID = ISMCallManager.shared.callIDs.first,  (ISMLiveCallView.shared.meetingId == meeting.meetingId || ISMCallManager.shared.callDetails?.meetingId ==  meeting.meetingId) {
+            if let callID = ISMCallManager.shared.callIDs.first,  (ISMLiveCallView.shared.meetingId == meeting?.meetingId || ISMCallManager.shared.callDetails?.meetingId ==  meeting?.meetingId) {
                 ISMLiveCallView.shared.disconnectCall()
                 ISMCallManager.shared.endCall(callUUID: callID)
             }
       
         case .memberLeft, .joinRequestReject:
-            if ISMCallManager.shared.callDetails?.meetingId == meeting.meetingId,let callID = ISMCallManager.shared.callIDs.first{
+            if ISMCallManager.shared.callDetails?.meetingId == meeting?.meetingId,let callID = ISMCallManager.shared.callIDs.first{
                 ISMCallManager.shared.endCall(callUUID: callID)
             }
         case .publishingStarted, .joinRequestAccept :
-            if let senderId =  meeting.userId, senderId != ISMConfiguration.shared.getUserId(), ISMCallManager.shared.outgoingCallID != nil{
+            if let senderId =  meeting?.userId, senderId != ISMConfiguration.shared.getUserId(), ISMCallManager.shared.outgoingCallID != nil{
                 ISMCallManager.shared.startTheCall()
-            }else if  meeting.userId ==  ISMConfiguration.shared.getUserId(),let callID = ISMCallManager.shared.callIDs.first, (ISMCallManager.shared.callAnsweredByDeviceId == nil)  {
+            }else if  meeting?.userId ==  ISMConfiguration.shared.getUserId(),let callID = ISMCallManager.shared.callIDs.first, (ISMCallManager.shared.callActiveOnDeviceId == nil)  {
                // Notes : handle the scenario for session multiple devices. If one device accept the call end for others
                 ISMCallManager.shared.endCall(callUUID: callID)
             }
             
         case .messagePublished :
-            if let senderId =  meeting.senderId, senderId != ISMConfiguration.shared.getUserId(), let messageBody = meeting.body{
+            if let senderId =  meeting?.senderId, senderId != ISMConfiguration.shared.getUserId(), let messageBody = meeting?.body{
                 switch ISMPublishMessageConstants(rawValue: messageBody) {
                 case .callRingingMessage:
                     ISMLiveCallView.shared.updateCallStatus(.ringing)
                 case .requestToSwitchToVideoCall :
-                    ISMLiveCallView.shared.showTheVideoCallRequest(meeting: meeting)
+                    if let meeting {
+                        ISMLiveCallView.shared.showTheVideoCallRequest(meeting: meeting)
+                    }
                 case .requestToSwitchToVideoCallRejected:
                     ISMLiveCallView.shared.videoCallRequestDeclined()
                 case .requestToSwitchToVideoCallAccepted:

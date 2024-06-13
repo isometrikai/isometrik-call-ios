@@ -78,7 +78,7 @@ extension ISMMQTTManager : CocoaMQTTDelegate{
     }
     
     public func mqtt(_ mqtt: CocoaMQTT, didReceiveMessage message: CocoaMQTTMessage, id: UInt16) {
-        handleTheMeetingEvents(payload: message.payload)
+        CallEventHandler.handleCallEvents(payload: message.payload)
     }
     
     public func mqtt(_ mqtt: CocoaMQTT, didSubscribeTopics success: NSDictionary, failed: [String]) {

@@ -14,6 +14,10 @@ import PushKit
 
 public class ISMCallManager : NSObject{
     
+    
+    /// hangup the call if no one answered it
+    private var callHangupTimer: ISMCallHangupTimer?
+    
     var backgroundTaskID : UIBackgroundTaskIdentifier?
     
     var callDetails : ISMMeeting?
@@ -26,7 +30,7 @@ public class ISMCallManager : NSObject{
     
     
     ///  Check if call is actioned on other device
-    var callAnsweredByDeviceId : String?
+    var callActiveOnDeviceId : String?
     
     // 1
     public static let shared = ISMCallManager()
@@ -136,7 +140,7 @@ extension ISMCallManager{
                 print("Error starting call: \(error.localizedDescription)")
             } else {
                 print("Call started successfully")
-                self.callAnsweredByDeviceId = ISMDeviceId
+                self.callActiveOnDeviceId = ISMDeviceId
                 self.scheduleCallHangup()
             }
         }
@@ -144,6 +148,7 @@ extension ISMCallManager{
     
     // Start the call outgoing call if it is accepted on other end
     func startTheCall(){
+        self.cancelHangupTimer()
         self.outgoingCallID = nil // clear the outgoingCallId to avoid the hangup case of no answer
         self.provider.reportOutgoingCall(with: ISMCallManager.shared.callIDs.first!, connectedAt: Date())
     }
@@ -180,20 +185,27 @@ extension ISMCallManager{
         }
     }
     
-    /// If outgoing call is not connected within 60 seconds then hangup
+    /// hangup if  call is not connected within timeInterval seconds
     func scheduleCallHangup() {
-        DispatchQueue.global().asyncAfter(deadline: .now() + ISMConfiguration.shared.getCallHangUpTime()) {
-            
-            //Outgoing call
-            if let callUUID = self.outgoingCallID {
-                self.endCall(callUUID:callUUID)
-            }//Incoming call
-            else if let callUUID = self.callIDs.first {
-                self.endCall(callUUID:callUUID)
-                self.rejectCall()
-            }
-        }
+        callHangupTimer = ISMCallHangupTimer(timeInterval: ISMConfiguration.shared.getCallHangUpTime(), hangupHandler: hangupCall)
+        callHangupTimer?.start()
     }
+    
+    func cancelHangupTimer() {
+           callHangupTimer?.cancel()
+     }
+
+       func hangupCall() {
+           print("Call is being hung up due to no answer.")
+           //Outgoing call
+           if let callUUID = self.outgoingCallID {
+               self.endCall(callUUID:callUUID)
+           }//Incoming call
+           else if let callUUID = self.callIDs.first {
+               self.endCall(callUUID:callUUID)
+               self.rejectCall()
+           }
+       }
 }
 
 // PushRegistry methods
@@ -342,7 +354,8 @@ extension ISMCallManager : CXProviderDelegate{
                 self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
             }
             if let id = self.callDetails?.meetingId{
-                self.callAnsweredByDeviceId = ISMDeviceId
+                self.cancelHangupTimer()
+                self.callActiveOnDeviceId = ISMDeviceId
                 self.viewModel.accpetCall(meetingId: id) { response in
                     guard let rtcToken = response.rtcToken else{
                         self.endCall(callUUID:self.callIDs.first ?? UUID())
@@ -404,17 +417,21 @@ extension ISMCallManager : CXProviderDelegate{
                 
             }
         }
-        // Remove the ended call from ISMCallManager.callIDs
         
-        if  self.callAnsweredByDeviceId != nil, callObserver.calls.contains(where: { $0.hasConnected || $0.isOutgoing}) {
-            // The call was picked up and then ended
-            print("Call was picked up and ended")
-            self.leaveCall()
-        } else if  self.callAnsweredByDeviceId != nil{
+        if let callActiveOnDeviceId = self.callActiveOnDeviceId {
+            if callObserver.calls.contains(where: { $0.hasConnected || $0.isOutgoing }) {
+                // The call was picked up and then ended
+                print("Call was picked up and ended")
+                self.leaveCall()
+            } else {
+                // The call was not connected (e.g., declined before connecting)
+                print("Call was declined or ended before connecting")
+                self.rejectCall()
+            }
+        }else{
             self.rejectCall()
-            // The call was not connected (e.g., declined before connecting)
-            print("Call was declined or ended before connecting")
         }
+        
         ISMCallManager.shared.removeCall(uuid: action.callUUID)
         action.fulfill()
         return
@@ -526,11 +543,12 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     func leaveCall(){
+        self.cancelHangupTimer()
         guard  !callIDs.isEmpty, let meetingId = callDetails?.meetingId else{
             return
         }
         self.viewModel.leaveMeeting(meetingId:meetingId){
-            self.callAnsweredByDeviceId = nil
+            self.callActiveOnDeviceId = nil
             self.callConnectedTime = nil
             self.callDetails = nil
             self.member = nil
@@ -542,11 +560,12 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     func rejectCall(){
+        self.cancelHangupTimer()
         guard !callIDs.isEmpty, let meetingId = callDetails?.meetingId else{
             return
         }
         self.viewModel.rejectCall(meetingId:meetingId){_ in
-            self.callAnsweredByDeviceId = nil
+            self.callActiveOnDeviceId = nil
             self.callConnectedTime = nil
             self.callDetails = nil
             self.member = nil

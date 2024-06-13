@@ -25,7 +25,7 @@ public struct ISMMeetingRequest: Codable {
     public var audioOnly: Bool
     public var conversationId : String?
     
-   public init(selfHosted: Bool = true, pushNotifications: Bool = false, metaData: [String : String] = [:], members: [String], meetingImageUrl: String = "https://d1q6f0aelx0por.cloudfront.net/product-logos/cb773227-1c2c-42a4-a527-12e6f827c1d2-elixir.png", meetingDescription: String = "NA", hdMeeting: Bool = false, enableRecording: Bool = false, deviceId: String = ISMDeviceId, customType: String, meetingType: Int = 0, autoTerminate: Bool = true, audioOnly: Bool, conversationId: String? = nil) {
+   public init(selfHosted: Bool = true, pushNotifications: Bool = true, metaData: [String : String] = [:], members: [String], meetingImageUrl: String = "https://d1q6f0aelx0por.cloudfront.net/product-logos/cb773227-1c2c-42a4-a527-12e6f827c1d2-elixir.png", meetingDescription: String = "NA", hdMeeting: Bool = false, enableRecording: Bool = false, deviceId: String = ISMDeviceId, customType: String, meetingType: Int = 0, autoTerminate: Bool = true, audioOnly: Bool, conversationId: String? = nil) {
         self.selfHosted = selfHosted
         self.pushNotifications = pushNotifications
         self.metaData = metaData
