@@ -234,19 +234,19 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
         timerLabel.translatesAutoresizingMaskIntoConstraints = false
         profileImageView.translatesAutoresizingMaskIntoConstraints = false
         
+        
         NSLayoutConstraint.activate([
+            profileImageView.topAnchor.constraint(equalTo:self.topAnchor,constant: 150),
             profileImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            profileImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             profileImageView.widthAnchor.constraint(equalToConstant: 100),
             profileImageView.heightAnchor.constraint(equalToConstant: 100),
             
             nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 8),
-            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor,constant: 20),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor,constant: -20),
             
             timerLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            timerLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            timerLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            timerLabel.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
         ])
     }
     
@@ -269,7 +269,7 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
             timerLabel.text = status.rawValue
         }
         
-        profileImageView.setImage(urlString:profileImageUrl )
+        profileImageView.setImage(urlString:profileImageUrl)
     }
     
     // MARK: - Timer
