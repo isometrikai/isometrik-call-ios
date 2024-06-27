@@ -14,56 +14,111 @@ struct ISMMeetings: Codable {
     var meetings: [ISMMeeting]?
 }
 
-// MARK: - Meeting
 public struct ISMMeeting: Codable {
-    
-    let rtcToken : String?
-    let uid : Int?
-    let action : String?
-    let createdBy : String?
-    let userId : String?
-    let members : [ISMCallMember]?
-//    let selfHosted: Bool
-//    let searchableTags: [JSONAny]
-//    let privateOneToOne: JSONNull?
-//    let metaData: MetaData
-//    let membersPublishingCount, membersCount, meetingType: Int
-    let meetingImageUrl: String?
-    public  let meetingId, meetingDescription, initiatorName: String?
-    let initiatorImageUrl: String?
-    let initiatorIdentifier: String?
-    
-    // Sender Id of the message publisher
-    let senderName : String?
-    let senderId: String?
-    let body: String?
-    
-//    let hdMeeting, enableRecording: Bool
-    let customType: String?
-    let creationTime: Int?
-//    let createdBy: String
-//    let conversationID: JSONNull?
-//    let config: Config
-//    let autoTerminate, audioOnly: Bool
-//    let adminCount: Int
-//
-//    enum CodingKeys: String, CodingKey {
-//        case selfHosted, searchableTags, privateOneToOne, metaData, membersPublishingCount, membersCount, meetingType
-//        case meetingImageURL = "meetingImageUrl"
-//        case meetingID = "meetingId"
-//        case meetingDescription, initiatorName
-//        case initiatorImageURL = "initiatorImageUrl"
-//        case initiatorIdentifier, hdMeeting, enableRecording, customType, creationTime, createdBy
-//        case conversationID = "conversationId"
-//        case config, autoTerminate, audioOnly, adminCount
-//    }
-    
+    public  var sentAt : Double?
+    public var recordingUrl : String?
+    public  var privateOneToOne : Bool?
+    public   var missedByMembers : [String]?
+    public  var messageId : String?
+    public var meetingImageUrl : String?
+    public var meetingId : String?
+    public var meetingDescription : String?
+    public  var initiatorName : String?
+    public var initiatorImageUrl : String?
+    public var initiatorIdentifier : String?
+    public var initiatorId : String?
+    public var deliveryReadEventsEnabled : Bool?
+    public var deliveredToAll : Bool?
+    public var conversationStatusMessage : Bool?
+    public  var conversationId : String?
+    public var callDurations : [ISMCallMeetingDuration]?
+    public var action : String?
+    public var adminCount : Int?
+    public let members : [ISMCallMember]?
+    public var enableRecording : Bool?
+    public let customType: String?
+    public let createdBy : String?
+    public let creationTime: Int?
+    public var audioOnly : Bool?
+    public var active : Bool?
+    public var autoTerminate : Bool?
+    public var selfHosted : Bool?
+    public var config : ISMCallConfig?
+    public var hdMeeting : Bool?
+    public let rtcToken : String?
+    public let uid : Int?
+    public  let userId : String?
+    public let senderId: String?
+    public let body: String?
+    public let senderName : String?
     func callType() -> ISMLiveCallType{
-        
         return ISMLiveCallType(rawValue: customType ?? "") ?? .AudioCall
     }
-
 }
+
+
+public struct ISMCallMeetingDuration : Codable{
+    public   var memberId : String?
+    public   var durationInMilliseconds : Double?
+    public  init(memberId: String? = nil, durationInMilliseconds: Double? = nil) {
+        self.memberId = memberId
+        self.durationInMilliseconds = durationInMilliseconds
+    }
+}
+public struct ISMCallConfig: Codable {
+    public let pushNotifications: Bool
+}
+
+
+//public struct ISMMeeting: Codable {
+//
+//    let rtcToken : String?
+//    let uid : Int?
+//    let action : String?
+//    let createdBy : String?
+//    let userId : String?
+//    let members : [ISMCallMember]?
+////    let selfHosted: Bool
+////    let searchableTags: [JSONAny]
+////    let privateOneToOne: JSONNull?
+////    let metaData: MetaData
+////    let membersPublishingCount, membersCount, meetingType: Int
+//    let meetingImageUrl: String?
+//    public  let meetingId, meetingDescription, initiatorName: String?
+//    let initiatorImageUrl: String?
+//    let initiatorIdentifier: String?
+//
+//    // Sender Id of the message publisher
+//    let senderName : String?
+//    let senderId: String?
+//    let body: String?
+//
+////    let hdMeeting, enableRecording: Bool
+//    let customType: String?
+//    let creationTime: Int?
+////    let createdBy: String
+////    let conversationID: JSONNull?
+////    let config: Config
+////    let autoTerminate, audioOnly: Bool
+////    let adminCount: Int
+////
+////    enum CodingKeys: String, CodingKey {
+////        case selfHosted, searchableTags, privateOneToOne, metaData, membersPublishingCount, membersCount, meetingType
+////        case meetingImageURL = "meetingImageUrl"
+////        case meetingID = "meetingId"
+////        case meetingDescription, initiatorName
+////        case initiatorImageURL = "initiatorImageUrl"
+////        case initiatorIdentifier, hdMeeting, enableRecording, customType, creationTime, createdBy
+////        case conversationID = "conversationId"
+////        case config, autoTerminate, audioOnly, adminCount
+////    }
+//
+//    func callType() -> ISMLiveCallType{
+//
+//        return ISMLiveCallType(rawValue: customType ?? "") ?? .AudioCall
+//    }
+//
+//}
 
 // MARK: - Config
 struct Config: Codable {
@@ -73,7 +128,7 @@ struct Config: Codable {
 // MARK: - MetaData
 struct MetaData: Codable {
     let openMeeting: Bool
-
+    
     enum CodingKeys: String, CodingKey {
         case openMeeting = "open meeting"
     }
@@ -82,20 +137,20 @@ struct MetaData: Codable {
 // MARK: - Encode/decode helpers
 
 class JSONNull: Codable {
-
+    
     public static func == (lhs: JSONNull, rhs: JSONNull) -> Bool {
         return true
     }
-
+    
     public init() {}
-
+    
     public required init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if !container.decodeNil() {
             throw DecodingError.typeMismatch(JSONNull.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for JSONNull"))
         }
     }
-
+    
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encodeNil()
@@ -104,38 +159,38 @@ class JSONNull: Codable {
 
 class JSONCodingKey: CodingKey {
     let key: String
-
+    
     required init?(intValue: Int) {
         return nil
     }
-
+    
     required init?(stringValue: String) {
         key = stringValue
     }
-
+    
     var intValue: Int? {
         return nil
     }
-
+    
     var stringValue: String {
         return key
     }
 }
 
 class JSONAny: Codable {
-
+    
     let value: Any
-
+    
     static func decodingError(forCodingPath codingPath: [CodingKey]) -> DecodingError {
         let context = DecodingError.Context(codingPath: codingPath, debugDescription: "Cannot decode JSONAny")
         return DecodingError.typeMismatch(JSONAny.self, context)
     }
-
+    
     static func encodingError(forValue value: Any, codingPath: [CodingKey]) -> EncodingError {
         let context = EncodingError.Context(codingPath: codingPath, debugDescription: "Cannot encode JSONAny")
         return EncodingError.invalidValue(value, context)
     }
-
+    
     static func decode(from container: SingleValueDecodingContainer) throws -> Any {
         if let value = try? container.decode(Bool.self) {
             return value
@@ -154,7 +209,7 @@ class JSONAny: Codable {
         }
         throw decodingError(forCodingPath: container.codingPath)
     }
-
+    
     static func decode(from container: inout UnkeyedDecodingContainer) throws -> Any {
         if let value = try? container.decode(Bool.self) {
             return value
@@ -181,7 +236,7 @@ class JSONAny: Codable {
         }
         throw decodingError(forCodingPath: container.codingPath)
     }
-
+    
     static func decode(from container: inout KeyedDecodingContainer<JSONCodingKey>, forKey key: JSONCodingKey) throws -> Any {
         if let value = try? container.decode(Bool.self, forKey: key) {
             return value
@@ -208,7 +263,7 @@ class JSONAny: Codable {
         }
         throw decodingError(forCodingPath: container.codingPath)
     }
-
+    
     static func decodeArray(from container: inout UnkeyedDecodingContainer) throws -> [Any] {
         var arr: [Any] = []
         while !container.isAtEnd {
@@ -217,7 +272,7 @@ class JSONAny: Codable {
         }
         return arr
     }
-
+    
     static func decodeDictionary(from container: inout KeyedDecodingContainer<JSONCodingKey>) throws -> [String: Any] {
         var dict = [String: Any]()
         for key in container.allKeys {
@@ -226,7 +281,7 @@ class JSONAny: Codable {
         }
         return dict
     }
-
+    
     static func encode(to container: inout UnkeyedEncodingContainer, array: [Any]) throws {
         for value in array {
             if let value = value as? Bool {
@@ -250,7 +305,7 @@ class JSONAny: Codable {
             }
         }
     }
-
+    
     static func encode(to container: inout KeyedEncodingContainer<JSONCodingKey>, dictionary: [String: Any]) throws {
         for (key, value) in dictionary {
             let key = JSONCodingKey(stringValue: key)!
@@ -275,7 +330,7 @@ class JSONAny: Codable {
             }
         }
     }
-
+    
     static func encode(to container: inout SingleValueEncodingContainer, value: Any) throws {
         if let value = value as? Bool {
             try container.encode(value)
@@ -291,7 +346,7 @@ class JSONAny: Codable {
             throw encodingError(forValue: value, codingPath: container.codingPath)
         }
     }
-
+    
     public required init(from decoder: Decoder) throws {
         if var arrayContainer = try? decoder.unkeyedContainer() {
             self.value = try JSONAny.decodeArray(from: &arrayContainer)
@@ -302,7 +357,7 @@ class JSONAny: Codable {
             self.value = try JSONAny.decode(from: container)
         }
     }
-
+    
     public func encode(to encoder: Encoder) throws {
         if let arr = self.value as? [Any] {
             var container = encoder.unkeyedContainer()
