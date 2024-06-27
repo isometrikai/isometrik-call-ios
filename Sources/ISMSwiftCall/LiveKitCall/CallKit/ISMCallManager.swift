@@ -188,7 +188,7 @@ extension ISMCallManager{
     
     /// hangup if  call is not connected within timeInterval seconds
     func scheduleCallHangup() {
-        callHangupTimer = ISMCallHangupTimer(timeInterval: ISMConfiguration.shared.getCallHangUpTime(), hangupHandler: hangupCall)
+        callHangupTimer = ISMCallHangupTimer(timeInterval: 60.0, hangupHandler: hangupCall)
         callHangupTimer?.start()
     }
     
@@ -225,7 +225,7 @@ public extension ISMCallManager{
     }
     
     func updatePushRegisteryToken(){
-        if !ISMConfiguration.shared.getUserToken().isEmpty ,let token =  ISMPushKitToken.shared.newToken,   ISMPushKitToken.shared.needToUpdate(){
+        if !ISMConfiguration.getUserToken().isEmpty ,let token =  ISMPushKitToken.shared.newToken,   ISMPushKitToken.shared.needToUpdate(){
             viewModel.updatePushRegisteryApnsToken(addApnsDeviceToken: true, apnsDeviceToken: token) {
                 ISMPushKitToken.shared.updatedOnServer()
             }
@@ -268,7 +268,7 @@ public extension ISMCallManager{
                     if error == nil{
                         
                         if !ISMMQTTManager.shared.hasConnected{
-                            ISMMQTTManager.shared.connect(clientId: ISMConfiguration.shared.getUserId())
+                            ISMMQTTManager.shared.connect(clientId: ISMConfiguration.getUserId())
                         }
                         ISMCallManager.shared.callDetails = callDetails
                         ISMCallManager.shared.publishMessage(message: .callRingingMessage)
@@ -334,8 +334,7 @@ extension ISMCallManager : CXProviderDelegate{
         // Stop audio
         // End all calls because they are no longer valid
         // Remove all calls from the app's list of calls
-        
-        ISMCallManager.shared.removeAllCalls()
+    
     }
     
     // What happens when the user accepts the call by pressing the incoming call button? You should implement the method below and call the fulfill method if the call is successful.
@@ -420,21 +419,32 @@ extension ISMCallManager : CXProviderDelegate{
             }
         }
         
-        if let callActiveOnDeviceId = self.callActiveOnDeviceId {
-            if callObserver.calls.contains(where: { $0.hasConnected || $0.isOutgoing }) {
-                // The call was picked up and then ended
-                print("Call was picked up and ended")
-                self.leaveCall()
-            } else {
-                // The call was not connected (e.g., declined before connecting)
-                print("Call was declined or ended before connecting")
+        DispatchQueue.global().async {
+            // Request the task assertion and save the ID.
+            self.backgroundTaskID = UIApplication.shared.beginBackgroundTask (withName: "Finish Network Tasks") {
+                // End the task if time expires.
+                UIApplication.shared.endBackgroundTask(self.backgroundTaskID!)
+                self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
+            }
+            if self.callActiveOnDeviceId != nil {
+                if self.callObserver.calls.contains(where: { $0.hasConnected || $0.isOutgoing }) {
+                    // The call was picked up and then ended
+                    print("Call was picked up and ended")
+                    self.leaveCall()
+                } else {
+                    // The call was not connected (e.g., declined before connecting)
+                    print("Call was declined or ended before connecting")
+                    self.rejectCall()
+                }
+            }else{
                 self.rejectCall()
             }
-        }else{
-            self.rejectCall()
+          
+            // End the task assertion.
+            UIApplication.shared.endBackgroundTask(self.backgroundTaskID!)
+            self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
         }
         
-        ISMCallManager.shared.removeCall(uuid: action.callUUID)
         action.fulfill()
         return
     }
@@ -662,21 +672,30 @@ extension ISMCallManager : CXProviderDelegate{
             
         case .categoryChange, .override:
             // Speaker has changed, handle accordingly
-            if let previousRoute = userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription,
-               let outputs = previousRoute.outputs.first {
-                
-                print("****\(outputs)")
-                if outputs.portType == .builtInSpeaker,ISMLiveCallView.shared.isSpeakerOn{
-                    switchToReceiver()
-                    
-                } else if outputs.portType == .builtInReceiver,!ISMLiveCallView.shared.isSpeakerOn {
-                    switchToSpeaker()
-                }
-            }
+            // Debounce the action to ignore if it occurs again within 2 second
+            
+            let debouncer = Debouncer(delay: 2.0)
+            
+            debouncer.debounce {
+                          // Speaker has changed, handle accordingly
+                          if let previousRoute = userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription,
+                             let outputs = previousRoute.outputs.first {
+                              print("****\(outputs)")
+                              
+                              if outputs.portType == .builtInSpeaker, ISMLiveCallView.shared.isSpeakerOn {
+                                  self.switchToReceiver()
+                              } else if outputs.portType == .builtInReceiver, !ISMLiveCallView.shared.isSpeakerOn {
+                                  self.switchToSpeaker()
+                              }
+                          }
+                      }
+    
         default:
             break
         }
     }
+    
+    
     
     func switchToSpeaker() {
         

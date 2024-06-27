@@ -103,7 +103,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         if self.callType == .AudioCall{
             Task {
                 do {
-                    AudioManager.shared.isSpeakerOutputPreferred = false
+                   // AudioManager.shared.isSpeakerOutputPreferred = false
                 }
             }
         }
@@ -333,13 +333,17 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
                 
             }
         }
-        self.expandableView.updateMuteStatus(isMute: self.isMute)
+        DispatchQueue.main.async {
+            self.expandableView.updateMuteStatus(isMute: self.isMute)
+        }
+   
     }
     
     
     func updateSpeakerStatus(){
-        
-        self.expandableView.updateSpeakerStatus(isOn: isSpeakerOn)
+        DispatchQueue.main.async {
+            self.expandableView.updateSpeakerStatus(isOn: self.isSpeakerOn)
+        }
     }
     
     
@@ -402,7 +406,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         
         Task {
             do {
-                try await room.connect(url: ISMConfiguration.shared.getIsometrikLiveStreamUrl(), token: rtcToken,connectOptions: connectOptions,roomOptions: roomOptions)
+                try await room.connect(url: ISMConfiguration.getIsometrikLiveStreamUrl(), token: rtcToken,connectOptions: connectOptions,roomOptions: roomOptions)
                 /* Publish camera & mic*/
                 try await room.localParticipant.setMicrophone(enabled: true)
                 try await room.localParticipant.setCamera(enabled: callType != .AudioCall)
@@ -445,6 +449,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         }
         panGesture?.isEnabled = false
         customNavBar?.isHidden = false
+        isMinimised = false
         DispatchQueue.main.async {
             self.tapGestureForDraggableView.isEnabled = true
             self.panGestureForDraggableView.isEnabled = true
@@ -649,15 +654,52 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
 
 
 extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
+    
+    // Turn on speaker
+    func turnOnSpeaker() {
+        do {
+//            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .voiceChat, options: .defaultToSpeaker)
+//            try AVAudioSession.sharedInstance().setActive(true)
+            
+            let session = AVAudioSession.sharedInstance()
+                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
+            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.speaker) // Set preferred output port
+                  try session.setActive(true)
+            
+        } catch {
+            print("Error setting audio session category: \(error)")
+        }
+    }
+
+    // Turn off speaker
+    func turnOffSpeaker() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
+            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.none) // Set preferred output port
+                  try session.setActive(true)
+        } catch {
+            print("Error setting audio session category: \(error)")
+        }
+    }
+    
     func didTapSwitchAudioOutput() {
         
         isSpeakerOn = !isSpeakerOn
         
-        Task {
-            do {
-                AudioManager.shared.isSpeakerOutputPreferred = isSpeakerOn
-            }
+        
+        if isSpeakerOn{
+            turnOnSpeaker()
+        }else{
+            turnOffSpeaker()
         }
+        
+//        Task {
+//            do {
+//               // AudioManager.shared.isSpeakerOutputPreferred = isSpeakerOn
+//                
+//            }
+//        }
         
         updateSpeakerStatus()
     }
@@ -755,7 +797,7 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
         
         if callType == .AudioCall{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMAudioCallCollectionViewCell", for: indexPath) as! ISMAudioCallCollectionViewCell
-            cell.configure(withName: ISMCallManager.shared.member?.memberName ??   ISMCallManager.shared.member?.memberIdentifier ?? "Unknown", profileImageUrl: ISMCallManager.shared.member?.memberProfileImageURL , status: self.callStatus)
+            cell.configure(withName: ISMCallManager.shared.member?.memberName ??   ISMCallManager.shared.member?.memberIdentifier ?? "Unknown", profileImageUrl: ISMCallManager.shared.member?.memberProfileImageURL , status: self.callStatus, isMinimised: isMinimised ?? false)
             return cell
         }else{
             

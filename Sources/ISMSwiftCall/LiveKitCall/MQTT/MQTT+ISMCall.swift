@@ -53,15 +53,15 @@ public struct CallEventHandler {
             }
             delegate?.didReceiveJoinRequestReject(meeting: meeting)
         case .publishingStarted, .joinRequestAccept :
-            if let senderId =  meeting?.userId, senderId != ISMConfiguration.shared.getUserId(), ISMCallManager.shared.outgoingCallID != nil{
+            if let senderId =  meeting?.userId, senderId != ISMConfiguration.getUserId(), ISMCallManager.shared.outgoingCallID != nil{
                 ISMCallManager.shared.startTheCall()
-            }else if  meeting?.userId ==  ISMConfiguration.shared.getUserId(),let callID = ISMCallManager.shared.callIDs.first, (ISMCallManager.shared.callActiveOnDeviceId == nil)  {
+            }else if  meeting?.userId ==  ISMConfiguration.getUserId(),let callID = ISMCallManager.shared.callIDs.first, (ISMCallManager.shared.callActiveOnDeviceId == nil)  {
                // Notes : handle the scenario for session multiple devices. If one device accept the call end for others
                 ISMCallManager.shared.endCall(callUUID: callID)
             }
             delegate?.didReceiveJoinRequestAccept(meeting: meeting)
         case .messagePublished :
-            if let senderId =  meeting?.senderId, senderId != ISMConfiguration.shared.getUserId(), let messageBody = meeting?.body{
+            if let senderId =  meeting?.senderId, senderId != ISMConfiguration.getUserId(), let messageBody = meeting?.body{
                 switch ISMPublishMessageConstants(rawValue: messageBody) {
                 case .callRingingMessage:
                     ISMLiveCallView.shared.updateCallStatus(.ringing)

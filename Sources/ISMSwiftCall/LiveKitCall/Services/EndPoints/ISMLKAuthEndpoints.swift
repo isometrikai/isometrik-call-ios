@@ -55,9 +55,9 @@ enum ISMCallAuthEndpoints : ISMURLConvertible {
     var headers: [String: String]? {
         switch self {
         case .authenticate,.fetchUsers:
-            return ["appSecret":ISMConfiguration.shared.appSecret(),
-                    "userSecret" : ISMConfiguration.shared.userSecret() ,
-                    "licenseKey" : ISMConfiguration.shared.licenseKey()
+            return ["appSecret":ISMConfiguration.getAppSecret(),
+                    "userSecret" : ISMConfiguration.getUserSecret() ,
+                    "licenseKey" : ISMConfiguration.getLicenseKey()
             ]
             
         }

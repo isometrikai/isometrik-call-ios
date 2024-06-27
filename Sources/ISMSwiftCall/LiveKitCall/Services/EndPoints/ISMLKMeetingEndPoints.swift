@@ -88,9 +88,9 @@ enum ISMCallMeetingEndpoints : ISMURLConvertible {
     var headers: [String: String]? {
         switch self {
         case .getMeetings,.createMeeting, .startPublishing,.leaveMeeting,.publishMessage,.updateUser,.accpetMeeting,.rejectMeeting:
-            return ["appSecret":ISMConfiguration.shared.appSecret(),
-                    "userToken" : ISMConfiguration.shared.getUserToken() ,
-                    "licenseKey" : ISMConfiguration.shared.licenseKey()
+            return ["appSecret":ISMConfiguration.getAppSecret(),
+                    "userToken" : ISMConfiguration.getUserToken() ,
+                    "licenseKey" : ISMConfiguration.getLicenseKey()
             ]
         }
     }

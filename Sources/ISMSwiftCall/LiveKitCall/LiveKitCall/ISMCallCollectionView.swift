@@ -179,34 +179,11 @@ extension ISMLiveCallCollectionViewCell: ParticipantDelegate {
 
 class ISMAudioCallCollectionViewCell: UICollectionViewCell {
     
+    let profileView = ProfileView()
+    
     var startTime : Date?
     var timer: Timer?
     var seconds: Int = 0
-    
-    // MARK: - Properties
-    let nameLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        return label
-    }()
-    
-    let timerLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 14)
-        return label
-    }()
-    
-    let profileImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 25 // adjust as needed for your design
-        return imageView
-    }()
     
     // MARK: - Init
     override init(frame: CGRect) {
@@ -223,37 +200,31 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
         timer?.invalidate()
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // Adjust the views inside the cell
+        self.profileView.topSpaceView.isHidden = self.bounds.size.height < 200
+        self.profileView.timerLabel.isHidden = self.bounds.size.height < 200
+
+    }
+    
     // MARK: - Setup
     private func setupViews() {
-        // Add and layout subviews
-        contentView.addSubview(nameLabel)
-        contentView.addSubview(timerLabel)
-        contentView.addSubview(profileImageView)
-        
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        timerLabel.translatesAutoresizingMaskIntoConstraints = false
-        profileImageView.translatesAutoresizingMaskIntoConstraints = false
         
         
-        NSLayoutConstraint.activate([
-            profileImageView.topAnchor.constraint(equalTo:self.topAnchor,constant: 150),
-            profileImageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            profileImageView.widthAnchor.constraint(equalToConstant: 100),
-            profileImageView.heightAnchor.constraint(equalToConstant: 100),
-            
-            nameLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: 8),
-            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor,constant: 20),
-            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor,constant: -20),
-            
-            timerLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            timerLabel.centerXAnchor.constraint(equalTo: profileImageView.centerXAnchor),
-        ])
+        self.addSubview(profileView)
+             profileView.translatesAutoresizingMaskIntoConstraints = false
+             NSLayoutConstraint.activate([
+                 profileView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor,constant: 0),
+                 profileView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                 profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+             ])
     }
     
     // MARK: - Public Methods
-    func configure(withName name: String, profileImageUrl: String?, status : ISMCallStatus?) {
+    func configure(withName name: String, profileImageUrl: String?, status : ISMCallStatus?, isMinimised : Bool = false) {
         
-        nameLabel.text = name
+        profileView.nameLabel.text = name
         
         if status == .started{
             timer?.invalidate()
@@ -261,15 +232,15 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
                 self.startTime = time
                 startTimer()
             }else{
-                timerLabel.text = ISMCallConstants.connectingText
+                profileView.timerLabel.text = ISMCallConstants.connectingText
             }
           
         }else if let status
         {
-            timerLabel.text = status.rawValue
+            profileView.timerLabel.text =  isMinimised ? "MINIMISED" : status.rawValue
         }
         
-        profileImageView.setImage(urlString:profileImageUrl)
+        profileView.profileImageView.setImage(urlString:profileImageUrl)
     }
     
     // MARK: - Timer
@@ -296,11 +267,50 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
         // Update your app's timer display with the elapsed time
         let minutes = Int(elapsedTime / 60)
         let seconds = Int(elapsedTime) % 60
-        timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
+        profileView.timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
         // print("Timer: \(timerString)")
     }
 }
 
+class ProfileView: UIView {
 
+    let topSpaceView = UIView()
+    let nameLabel = UILabel()
+    let timerLabel = UILabel()
+    let profileImageView = UIImageView()
+    var stackView = UIStackView()
 
-
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+    }
+    
+    private func setupView() {
+        stackView = UIStackView(arrangedSubviews: [topSpaceView,profileImageView, nameLabel, timerLabel])
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stackView)
+        
+        topSpaceView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
+        nameLabel.textAlignment = .center
+        timerLabel.textAlignment = .center
+        
+        profileImageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        profileImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
+            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
+            stackView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -20)
+        ])
+    }
+}

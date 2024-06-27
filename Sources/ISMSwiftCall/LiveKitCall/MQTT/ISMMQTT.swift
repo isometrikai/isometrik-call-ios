@@ -24,9 +24,9 @@ public class ISMMQTTManager : NSObject {
     //MARK: - CONFIGURE
     public  func connect(clientId : String){
         self.clientId = clientId
-        mqtt = CocoaMQTT(clientID: clientId + (deviceId ), host: ISMConfiguration.shared.getMQTTHost(), port: UInt16(ISMConfiguration.shared.getMQTTPort()))
-        mqtt?.username = "2" + ISMConfiguration.shared.getAccountId() + ISMConfiguration.shared.getProjectId()
-        mqtt?.password = ISMConfiguration.shared.licenseKey() + ISMConfiguration.shared.getKeySetId()
+        mqtt = CocoaMQTT(clientID: clientId + (deviceId ), host: ISMConfiguration.getMQTTHost(), port: UInt16(2052))
+        mqtt?.username = "2" + ISMConfiguration.getAccountId() + ISMConfiguration.getProjectId()
+        mqtt?.password = ISMConfiguration.getLicenseKey() + ISMConfiguration.getKeysetId()
         mqtt?.keepAlive = 60
         mqtt?.autoReconnect = true
         mqtt?.logLevel = .debug
@@ -36,9 +36,9 @@ public class ISMMQTTManager : NSObject {
             if ack == .accept{
                 let client = clientId
                 let messageTopic =
-                "/\(ISMConfiguration.shared.getAccountId())/\(ISMConfiguration.shared.getProjectId())/Message/\(client)"
+                "/\(ISMConfiguration.getAccountId())/\(ISMConfiguration.getProjectId())/Message/\(client)"
                 let statusTopic =
-                "/\(ISMConfiguration.shared.getAccountId())/\(ISMConfiguration.shared.getProjectId())/Status/\(client)"
+                "/\(ISMConfiguration.getAccountId())/\(ISMConfiguration.getProjectId())/Status/\(client)"
                 mqtt.subscribe([(messageTopic,.qos0),(statusTopic,qos: .qos0)])
                 self.hasConnected = true
             }
@@ -48,9 +48,9 @@ public class ISMMQTTManager : NSObject {
     public  func unSubscribe(){
         let client = self.clientId
         let messageTopic =
-        "/\(ISMConfiguration.shared.getAccountId())/\(ISMConfiguration.shared.getProjectId())/Message/\(client)"
+        "/\(ISMConfiguration.getAccountId())/\(ISMConfiguration.getProjectId())/Message/\(client)"
         let statusTopic =
-        "/\(ISMConfiguration.shared.getAccountId())/\(ISMConfiguration.shared.getProjectId())/Status/\(client)"
+        "/\(ISMConfiguration.getAccountId())/\(ISMConfiguration.getProjectId())/Status/\(client)"
         mqtt?.unsubscribe(messageTopic)
         mqtt?.unsubscribe(statusTopic)
     }

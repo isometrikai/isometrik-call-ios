@@ -122,7 +122,7 @@ class ISMExpandableCallControlsView: UIView , AppearanceProvider{
         
         let statckView  = UIStackView(arrangedSubviews: [endCall, muteButton, speaker])
         
-        if ISMConfiguration.shared.videoCallOptionEnabled(){
+        if ISMConfiguration.videoCallOptionEnabled(){
             statckView.addArrangedSubview(enableVideoButton)
             statckView.addArrangedSubview(switchCamera)
         }

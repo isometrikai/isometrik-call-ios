@@ -49,9 +49,9 @@ public struct ISMCallConfiguration: ISMCallConfigurationProtocol {
     
     public let isometrikLiveStreamUrl: String
     public var MQTTHost: String
-    public var MQTTPort: Int
-    public var videoCallOption: Bool
-    public var callHangupTimeOnNoAnswer: TimeInterval
+    public var MQTTPort: Int = 2052
+    public var videoCallOption: Bool = true
+    public var callHangupTimeOnNoAnswer: TimeInterval = 60.0
 
     public init(accountId: String, projectId: String, keysetId: String, licenseKey: String, appSecret: String, userSecret: String, iometrikLiveStreamUrl: String = "wss://streaming.isometrik.io", MQTTHost: String = "connections.isometrik.io", MQTTPort: Int = 2052, videoCallOption: Bool = true, callHangupTimeOnNoAnswer: TimeInterval = 60.0) {
         self.accountId = accountId
@@ -67,6 +67,8 @@ public struct ISMCallConfiguration: ISMCallConfigurationProtocol {
         self.callHangupTimeOnNoAnswer = callHangupTimeOnNoAnswer
     }
 }
+
+
 
 
 
