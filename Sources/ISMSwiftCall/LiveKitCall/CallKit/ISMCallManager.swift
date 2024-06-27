@@ -719,7 +719,6 @@ extension ISMCallManager : CXProviderDelegate{
 
 
 
-@available(iOS 14.0, *)
 class CXISMCallManager: NSObject {
     static let shared = CXISMCallManager()
     
