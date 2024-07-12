@@ -11,11 +11,9 @@ public protocol ISMCallConfigurationProtocol {
     var accountId: String { get }
     var projectId: String { get }
     var keysetId: String { get }
-    
     var licenseKey: String { get }
     var appSecret: String { get }
     var userSecret: String { get }
-    
     var isometrikLiveStreamUrl: String { get }
     var userToken: String? { get set }
     var userId: String? { get set }

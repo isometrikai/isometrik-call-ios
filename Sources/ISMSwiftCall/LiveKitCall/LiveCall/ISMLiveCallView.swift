@@ -12,9 +12,9 @@ import AVFoundation
 
 class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvider {
     
-    private var remoteParticipants = [Participant]()
+    var remoteParticipants = [Participant]()
     var customNavBar : ISMCustomNavigationBar?
-    var callType : ISMLiveCallType = .AudioCall
+    var callType : ISMLiveCallType?
     var timer : Timer?
     var shouldUpdateCameraStatus : Bool = false
     let room  = Room()
@@ -74,7 +74,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         return privateShared!
     }
     
-    func configure( frame : CGRect, rtcToken: String, meetingId : String? = nil,callType : ISMLiveCallType = .AudioCall, isInitiator : Bool) {
+    func configure( frame : CGRect, rtcToken: String, meetingId : String? = nil,callType : ISMLiveCallType, isInitiator : Bool) {
         self.rtcToken = rtcToken
         self.meetingId = meetingId
         self.callType = callType
@@ -112,15 +112,17 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         
     }
     
-    private init( frame : CGRect, rtcToken: String, meetingId : String? = nil) {
+    private init( frame : CGRect, rtcToken: String, meetingId : String? = nil, callType : ISMLiveCallType?) {
         self.rtcToken = rtcToken
         self.meetingId = meetingId
+        self.callType = callType
         super.init(frame: frame)
     }
     
     private override init(frame: CGRect) {
         self.rtcToken = ""
         self.meetingId = nil
+        self.callType = nil
         super.init(frame: frame)
     }
     
@@ -149,6 +151,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
+        layout.minimumLineSpacing = .zero
+        layout.minimumInteritemSpacing = .zero
         
         let cv = ISMLiveCallCollectionView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height), collectionViewLayout: layout)
         cv.backgroundColor = .black
@@ -397,7 +401,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
                 useBroadcastExtension: true
             ),
             defaultVideoPublishOptions: VideoPublishOptions(
-                simulcast:  false
+                simulcast:  true
             ),
             adaptiveStream: true,
             dynacast: true,
@@ -528,7 +532,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             expandableView.frame =  CGRect(x: 0, y: self.bounds.height - expandableView.collapsedHeight, width: self.bounds.width, height: expandableView.collapsedHeight)
             expandableView.configureView()
             expandableView.expandableDelegate = self
-            expandableView.updateVideoEnabledStatus(isEnabled: callType == .VideoCall)
+            expandableView.updateVideoEnabledStatus(isEnabled: callType != .AudioCall)
             addSubview(expandableView)
         }
     }
@@ -558,7 +562,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         DispatchQueue.main.async {
             self.collectionView.reloadData()
         }
-        
+        print(self.remoteParticipants)
     }
     
     func updateCallStatus(_ callStatus : ISMCallStatus){
@@ -605,7 +609,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     func updateTheFloatingParticipant(remotePaticipants:[Participant]){
         DispatchQueue.main.async {
-            guard self.callType == .VideoCall, remotePaticipants.count == 1 else{
+            guard self.callType != .AudioCall else{
                 self.floatingVideoView()?.removeFromSuperview()
                 return
             }
@@ -636,7 +640,11 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         
         self.insertSubview(floatingVideoView, aboveSubview: self.collectionView)
         floatingVideoView.addGestureRecognizer(panGestureForDraggableView)
-        floatingVideoView.addGestureRecognizer(tapGestureForDraggableView)
+        
+        if callType != .GroupCall{
+            floatingVideoView.addGestureRecognizer(tapGestureForDraggableView)
+        }
+        
         self.layoutSubviews()
         self.layoutIfNeeded()
     }
@@ -726,8 +734,12 @@ extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
     }
     
     func didTapEndCall() {
-        
-        ISMCallManager.shared.endCall(callUUID: ISMCallManager.shared.callIDs.first ?? UUID())
+        if ISMCallManager.shared.callIDs.isEmpty{
+            ISMCallManager.shared.leaveCall()
+        }else{
+            
+         ISMCallManager.shared.endCall(callUUID: ISMCallManager.shared.callIDs.first ?? UUID())
+        }
         self.disconnectCall()
         
     }
@@ -771,64 +783,6 @@ extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
 }
 
 
-extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    /* Implement required methods for UICollectionViewDataSource and UICollectionViewDelegateFlowLayout*/
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        /* Return the number of items in your collection view*/
-        
-        if remoteParticipants.isEmpty && callType == .AudioCall{
-            return 1
-        }
-        return remoteParticipants.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if let callStatus{
-            if callStatus == .started{
-                stopAudio()
-                
-            }else if callStatus == .calling || callStatus == .ringing {
-                stopAudio()
-                self.playAudio()
-                
-            }
-        }
-        
-        
-        if callType == .AudioCall{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMAudioCallCollectionViewCell", for: indexPath) as! ISMAudioCallCollectionViewCell
-            cell.configure(withName: ISMCallManager.shared.member?.memberName ??   ISMCallManager.shared.member?.memberIdentifier ?? "Unknown", profileImageUrl: ISMCallManager.shared.member?.memberProfileImageURL , status: self.callStatus, isMinimised: isMinimised ?? false)
-            return cell
-        }else{
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMLiveCallCollectionViewCell", for: indexPath) as! ISMLiveCallCollectionViewCell
-            let participant = remoteParticipants[indexPath.row]
-            cell.participant = participant
-            cell.setDetails(name:ISMCallManager.shared.member?.memberName ??   ISMCallManager.shared.member?.memberIdentifier ?? "Unknown" , status: self.callStatus ?? .calling)
-            return cell
-        }
-        
-        
-        
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let screenSize = self.frame
-        /* Return the size of each item in your collection view*/
-        return CGSize(width: screenSize.width, height: screenSize.height)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        maximiseTheView()
-    }
-}
-
-
-
-
-
-
 
 
 protocol ISMCustomNavigationBarDelegate {
@@ -837,142 +791,6 @@ protocol ISMCustomNavigationBarDelegate {
 
 
 
-
-
-extension ISMLiveCallView : RoomDelegate{
-    
-    func room(_ room: Room, didUpdateIsRecording isRecording: Bool) {
-        
-    }
-    
-    func room(_ room: Room, didUpdateSpeakingParticipants speakers: [Participant]) {
-    }
-    
-    func room(_ room: Room, participant: Participant, didUpdatePermissions permissions: ParticipantPermissions) {
-        
-    }
-    
-    func room(_ room: Room, participant: RemoteParticipant, didPublishTrack publication: RemoteTrackPublication) {
-        
-    }
-    func room(_ room: Room, participant: RemoteParticipant, didUnpublishTrack publication: RemoteTrackPublication) {
-        
-    }
-    func room(_ room: Room, participant: Participant, trackPublication publication: TrackPublication, didUpdateIsMuted muted: Bool) {
-        
-    }
-    
-    
-    func room(_ room: Room, participant: RemoteParticipant?, didReceiveData data: Data, forTopic topic: String) {
-        
-    }
-    
-    func room(_ room: Room, participant: RemoteParticipant, didUnsubscribeTrack publication: RemoteTrackPublication) {
-        
-    }
-    
-    func room(_ room: Room, didUpdateConnectionState connectionState: ConnectionState, from oldValue: ConnectionState) {
-        if connectionState == .connected{
-            
-            // On background to foreground sometime camera freez, to update it switch camera status
-            if oldValue == .connecting, self.callType == .VideoCall{
-                self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateCameraStatus), userInfo: nil, repeats: true)
-            }
-            
-            if oldValue == .reconnecting{
-                self.localParticipant = self.room.localParticipant
-                DispatchQueue.main.async {
-                    if self.callType == .VideoCall{
-                        self.shouldUpdateCameraStatus = true
-                    }
-                }
-                
-                //                guard let trackPublication = room.localParticipant.localVideoTracks.first,
-                //                 let videoTrack = trackPublication.track as? LocalVideoTrack else { return }
-                
-            }
-        }
-    }
-    
-    func room(_ room: Room, participantDidConnect participant: RemoteParticipant) {
-        
-        guard  participant.id != room.localParticipant.id else{
-            return
-        }
-        DispatchQueue.main.async {
-            switch self.callType{
-            case .AudioCall, .VideoCall :
-                self.updateCallStatus(.started)
-                self.participantUpdated(participant: participant)
-            case .GroupCall  :
-                self.showToast(message: "\(participant.name ?? "") has joined the meeting.", duration: 2.0)
-            }
-            
-        }
-    }
-    
-    func room(_ room: Room, participantDidDisconnect participant: RemoteParticipant) {
-        
-        self.participantUpdated(participant: participant)
-        
-        switch callType{
-        case .AudioCall,.VideoCall :
-            self.disconnectCall()
-            if let callID = ISMCallManager.shared.callIDs.first{
-                ISMCallManager.shared.endCall(callUUID: callID)
-            }
-        case .GroupCall  :
-            DispatchQueue.main.async {
-                self.showToast(message: "\(String(describing: participant.name)) has left the meeting.", duration: 2.0)
-            }
-            
-        }
-        
-    }
-    
-    func room(_ room: Room, participant localParticipant: LocalParticipant, didPublishTrack publication: LocalTrackPublication) {
-        self.localParticipant = localParticipant
-    }
-    
-    func room(_ room: Room, participant: RemoteParticipant, didSubscribeTrack publication: RemoteTrackPublication) {
-        switch self.callType{
-        case .AudioCall :
-            self.callStatus = .started
-            self.participantUpdated(participant: participant)
-        case .GroupCall , .VideoCall :
-            self.callStatus = .started
-            self.participantUpdated(participant: participant)
-        }
-    }
-    
-    
-    
-    
-    private func room(_ room: Room, didFailToConnectWithError error: Error) {
-        print("ERROR : \(error.localizedDescription)")
-    }
-    
-    
-}
-extension Participant {
-    
-    public var mainVideoPublication: TrackPublication? {
-        firstScreenSharePublication ?? firstCameraPublication
-    }
-    
-    public var mainVideoTrack: VideoTrack? {
-        firstScreenShareVideoTrack ?? firstCameraVideoTrack
-    }
-    
-    public var subVideoTrack: VideoTrack? {
-        firstScreenShareVideoTrack != nil ? firstCameraVideoTrack : nil
-    }
-    
-    public var mainAudoTrack: AudioTrack? {
-        firstAudioTrack
-    }
-    
-}
 
 
 

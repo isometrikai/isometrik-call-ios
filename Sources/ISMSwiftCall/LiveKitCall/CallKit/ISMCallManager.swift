@@ -22,7 +22,7 @@ public class ISMCallManager : NSObject{
     
     var callDetails : ISMMeeting?
     
-    var member : ISMCallMember?
+    var members : [ISMCallMember]?
     
     var outgoingCallID : UUID?
     
@@ -84,7 +84,9 @@ public class ISMCallManager : NSObject{
             if let error = error {
                 print("Error ending call: \(error.localizedDescription)")
                 self.provider.reportCall(with: callUUID, endedAt: Date(), reason: .remoteEnded)
-                ISMLiveCallView.shared.disconnectCall()
+                DispatchQueue.main.async {
+                    ISMLiveCallView.shared.disconnectCall()
+                }
             } else {
                 print("Call ended successfully")
                 
@@ -170,13 +172,8 @@ extension ISMCallManager{
                     ISMCallManager.shared.callDetails = callDetails
                     ISMCallManager.shared.publishMessage(message: .callRingingMessage)
                     ISMCallManager.shared.addCall(uuid: newCall)
-                    ISMCallManager.shared.member = callDetails.members?.first(where: {
-                        $0.isAdmin ?? false
-                    })
-                    if  ISMCallManager.shared.member != nil{
-                        ISMCallManager.shared.member?.memberProfileImageURL =  callDetails.initiatorImageUrl
-                    }
-
+                    ISMCallManager.shared.members = callDetails.members
+                    
                 }
             })
             
@@ -188,25 +185,27 @@ extension ISMCallManager{
     
     /// hangup if  call is not connected within timeInterval seconds
     func scheduleCallHangup() {
+#if !targetEnvironment(simulator)
         callHangupTimer = ISMCallHangupTimer(timeInterval: 60.0, hangupHandler: hangupCall)
         callHangupTimer?.start()
+#endif
     }
     
     func cancelHangupTimer() {
-           callHangupTimer?.cancel()
-     }
-
-       func hangupCall() {
-           print("Call is being hung up due to no answer.")
-           //Outgoing call
-           if let callUUID = self.outgoingCallID {
-               self.endCall(callUUID:callUUID)
-           }//Incoming call
-           else if let callUUID = self.callIDs.first {
-               self.endCall(callUUID:callUUID)
-               self.rejectCall()
-           }
-       }
+        callHangupTimer?.cancel()
+    }
+    
+    func hangupCall() {
+        print("Call is being hung up due to no answer.")
+        //Outgoing call
+        if let callUUID = self.outgoingCallID {
+            self.endCall(callUUID:callUUID)
+        }//Incoming call
+        else if let callUUID = self.callIDs.first {
+            self.endCall(callUUID:callUUID)
+            self.rejectCall()
+        }
+    }
 }
 
 // PushRegistry methods
@@ -271,16 +270,17 @@ public extension ISMCallManager{
                             ISMMQTTManager.shared.connect(clientId: ISMConfiguration.getUserId())
                         }
                         ISMCallManager.shared.callDetails = callDetails
-                        ISMCallManager.shared.publishMessage(message: .callRingingMessage)
+                      
                         ISMCallManager.shared.addCall(uuid: newCall)
-                        ISMCallManager.shared.member = callDetails.members?.first(where: {
-                            $0.isAdmin ?? false
-                        })
+                        
+                        ISMCallManager.shared.members = callDetails.members
+                        
                         self.scheduleCallHangup()
                         
-                        if  ISMCallManager.shared.member != nil{
-                            ISMCallManager.shared.member?.memberProfileImageURL =  callDetails.initiatorImageUrl
+                        if callDetails.callType() != .GroupCall{
+                            ISMCallManager.shared.publishMessage(message: .callRingingMessage)
                         }
+                        
                         DispatchQueue.global(qos: .default).async {
                             do {
                                 try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .voiceChat)
@@ -334,7 +334,7 @@ extension ISMCallManager : CXProviderDelegate{
         // Stop audio
         // End all calls because they are no longer valid
         // Remove all calls from the app's list of calls
-    
+        
     }
     
     // What happens when the user accepts the call by pressing the incoming call button? You should implement the method below and call the fulfill method if the call is successful.
@@ -365,7 +365,7 @@ extension ISMCallManager : CXProviderDelegate{
                     self.pushLiveCallView(rtcToken: rtcToken, meetingID: id, callType: self.callDetails?.callType() ?? .AudioCall)
                 }failure: {
                     // If meeting is already Ended
-                  //  self.endCall(callUUID:self.callIDs.first ?? UUID())
+                    //  self.endCall(callUUID:self.callIDs.first ?? UUID())
                 }
             }
             // End the task assertion.
@@ -396,6 +396,8 @@ extension ISMCallManager : CXProviderDelegate{
     // What happens when the user taps the reject button? Call the fail method if the call is unsuccessful. It checks the call based on the UUID. It uses the network to connect to the end call method you provide.
     public func provider(_ provider: CXProvider, perform action: CXEndCallAction) {
         
+        
+#if !targetEnvironment(simulator)
         guard !callObserver.calls.isEmpty else {
             return
         }
@@ -439,7 +441,7 @@ extension ISMCallManager : CXProviderDelegate{
             }else{
                 self.rejectCall()
             }
-          
+            
             // End the task assertion.
             UIApplication.shared.endBackgroundTask(self.backgroundTaskID!)
             self.backgroundTaskID = UIBackgroundTaskIdentifier.invalid
@@ -447,6 +449,10 @@ extension ISMCallManager : CXProviderDelegate{
         
         action.fulfill()
         return
+#endif
+#if targetEnvironment(simulator)
+        //        self.leaveCall()
+#endif
     }
     
     public func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
@@ -518,22 +524,49 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     
-    
-    func createCall(callUser : ISMCallMember, conversationId : String? = nil, callType : ISMLiveCallType = .AudioCall){
+    func joinCall(meetingId : String){
         
-        guard canMakeAOutgoingCall(), let memberId = callUser.memberId else{
+        guard  ISMLiveCallView.shared.meetingId == nil else {
+            
+            print("You can join other call when on a call.")
             return
         }
-        self.viewModel.createMeeting(memberId:memberId,conversationId:conversationId,callType: callType) { callDetails in
+        
+        self.viewModel.startPublishing(meetingId: meetingId) { rtc in
+            
+            guard let rtcToken = rtc.rtcToken else{
+                return
+            }
+            ISMCallManager.shared.callDetails = ISMMeeting(meetingId: meetingId)
+            ISMCallManager.shared.pushLiveCallView(rtcToken: rtcToken, meetingID: meetingId, callType: .GroupCall)
+        }
+    }
+    
+    
+    func createCall(members : [ISMCallMember], conversationId : String? = nil, callType : ISMLiveCallType){
+        
+        let memberIds = members.compactMap{ $0.memberId }
+        guard !memberIds.isEmpty else{
+            return
+        }
+        let type : ISMLiveCallType = members.count > 1 ? .GroupCall  : callType
+        self.viewModel.createMeeting(memberIds:memberIds,conversationId:conversationId,callType: type) { callDetails in
             
             guard let rtcToken = callDetails.rtcToken, let meetingId = callDetails.meetingId else{
                 return
             }
             self.callConnectedTime = nil
-            ISMCallManager.shared.member = callUser
-            self.reportOutgoingCall(handleName: callUser.memberName ?? callUser.memberIdentifier ?? "",token: rtcToken,meetingId: meetingId, videoEnabled: callType == .VideoCall)
+            ISMCallManager.shared.members = members
+            
+#if !targetEnvironment(simulator)
+            // Code to be excluded on the simulator
+            if type != .GroupCall,members.count == 1 , let callUser = members.first {
+                self.reportOutgoingCall(handleName: callUser.memberName ?? callUser.memberIdentifier ?? "",token: rtcToken,meetingId: meetingId, videoEnabled: type == .VideoCall)
+            }
+#endif
+            
             ISMCallManager.shared.callDetails = callDetails
-            ISMCallManager.shared.pushLiveCallView(rtcToken: rtcToken, meetingID: meetingId, callType: callType,isInitiator: true)
+            ISMCallManager.shared.pushLiveCallView(rtcToken: rtcToken, meetingID: meetingId, callType: type,isInitiator: true)
         }
     }
     
@@ -550,14 +583,14 @@ extension ISMCallManager : CXProviderDelegate{
     
     func leaveCall(){
         self.cancelHangupTimer()
-        guard  !callIDs.isEmpty, let meetingId = callDetails?.meetingId else{
+        guard  let meetingId = callDetails?.meetingId else{
             return
         }
         self.viewModel.leaveMeeting(meetingId:meetingId){
             self.callActiveOnDeviceId = nil
             self.callConnectedTime = nil
             self.callDetails = nil
-            self.member = nil
+            self.members = nil
             self.outgoingCallID = nil
             self.removeAllCalls()
             print("Left Meeting Successfully")
@@ -574,7 +607,7 @@ extension ISMCallManager : CXProviderDelegate{
             self.callActiveOnDeviceId = nil
             self.callConnectedTime = nil
             self.callDetails = nil
-            self.member = nil
+            self.members = nil
             self.outgoingCallID = nil
             self.removeAllCalls()
             print("Rejected Successfully")
@@ -677,19 +710,19 @@ extension ISMCallManager : CXProviderDelegate{
             let debouncer = Debouncer(delay: 2.0)
             
             debouncer.debounce {
-                          // Speaker has changed, handle accordingly
-                          if let previousRoute = userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription,
-                             let outputs = previousRoute.outputs.first {
-                              print("****\(outputs)")
-                              
-                              if outputs.portType == .builtInSpeaker, ISMLiveCallView.shared.isSpeakerOn {
-                                  self.switchToReceiver()
-                              } else if outputs.portType == .builtInReceiver, !ISMLiveCallView.shared.isSpeakerOn {
-                                  self.switchToSpeaker()
-                              }
-                          }
-                      }
-    
+                // Speaker has changed, handle accordingly
+                if let previousRoute = userInfo[AVAudioSessionRouteChangePreviousRouteKey] as? AVAudioSessionRouteDescription,
+                   let outputs = previousRoute.outputs.first {
+                    print("****\(outputs)")
+                    
+                    if outputs.portType == .builtInSpeaker, ISMLiveCallView.shared.isSpeakerOn {
+                        self.switchToReceiver()
+                    } else if outputs.portType == .builtInReceiver, !ISMLiveCallView.shared.isSpeakerOn {
+                        self.switchToSpeaker()
+                    }
+                }
+            }
+            
         default:
             break
         }

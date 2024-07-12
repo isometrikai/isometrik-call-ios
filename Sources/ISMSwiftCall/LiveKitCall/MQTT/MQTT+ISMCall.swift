@@ -10,6 +10,7 @@ import Foundation
 public protocol CallEventHandlerDelegate: AnyObject {
     func didReceiveMeetingCreated(meeting: ISMMeeting?)
     func didReceiveMeetingEnded(meeting: ISMMeeting?)
+    func didMemberLeaveTheMeeting(meeting: ISMMeeting?)
     func didReceiveJoinRequestReject(meeting: ISMMeeting?)
     func didReceiveJoinRequestAccept(meeting: ISMMeeting?)
     func didReceiveMessagePublished(meeting: ISMMeeting?, messageBody: String)
@@ -47,12 +48,16 @@ public struct CallEventHandler {
                 ISMCallManager.shared.endCall(callUUID: callID)
             }
             delegate?.didReceiveMeetingEnded(meeting: meeting)
-        case .memberLeft, .joinRequestReject:
+        case .memberLeft :
+            delegate?.didMemberLeaveTheMeeting(meeting: meeting)
+       case .joinRequestReject:
             if ISMCallManager.shared.callDetails?.meetingId == meeting?.meetingId,let callID = ISMCallManager.shared.callIDs.first{
                 ISMCallManager.shared.endCall(callUUID: callID)
             }
             delegate?.didReceiveJoinRequestReject(meeting: meeting)
-        case .publishingStarted, .joinRequestAccept :
+        case .publishingStarted :
+            break
+        case .joinRequestAccept :
             if let senderId =  meeting?.userId, senderId != ISMConfiguration.getUserId(), ISMCallManager.shared.outgoingCallID != nil{
                 ISMCallManager.shared.startTheCall()
             }else if  meeting?.userId ==  ISMConfiguration.getUserId(),let callID = ISMCallManager.shared.callIDs.first, (ISMCallManager.shared.callActiveOnDeviceId == nil)  {

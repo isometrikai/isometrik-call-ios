@@ -54,6 +54,82 @@ public struct ISMMeeting: Codable {
     func callType() -> ISMLiveCallType{
         return ISMLiveCallType(rawValue: customType ?? "") ?? .AudioCall
     }
+    
+    public init(
+        meetingId: String,
+        sentAt: Double? = nil,
+        recordingUrl: String? = nil,
+        privateOneToOne: Bool? = nil,
+        missedByMembers: [String]? = nil,
+        messageId: String? = nil,
+        meetingImageUrl: String? = nil,
+        meetingDescription: String? = nil,
+        initiatorName: String? = nil,
+        initiatorImageUrl: String? = nil,
+        initiatorIdentifier: String? = nil,
+        initiatorId: String? = nil,
+        deliveryReadEventsEnabled: Bool? = nil,
+        deliveredToAll: Bool? = nil,
+        conversationStatusMessage: Bool? = nil,
+        conversationId: String? = nil,
+        callDurations: [ISMCallMeetingDuration]? = nil,
+        action: String? = nil,
+        adminCount: Int? = nil,
+        members: [ISMCallMember]? = nil,
+        enableRecording: Bool? = nil,
+        customType: String? = nil,
+        createdBy: String? = nil,
+        creationTime: Int? = nil,
+        audioOnly: Bool? = nil,
+        active: Bool? = nil,
+        autoTerminate: Bool? = nil,
+        selfHosted: Bool? = nil,
+        config: ISMCallConfig? = nil,
+        hdMeeting: Bool? = nil,
+        rtcToken: String? = nil,
+        uid: Int? = nil,
+        userId: String? = nil,
+        senderId: String? = nil,
+        body: String? = nil,
+        senderName: String? = nil
+    ) {
+        self.meetingId = meetingId
+        self.sentAt = sentAt
+        self.recordingUrl = recordingUrl
+        self.privateOneToOne = privateOneToOne
+        self.missedByMembers = missedByMembers
+        self.messageId = messageId
+        self.meetingImageUrl = meetingImageUrl
+        self.meetingDescription = meetingDescription
+        self.initiatorName = initiatorName
+        self.initiatorImageUrl = initiatorImageUrl
+        self.initiatorIdentifier = initiatorIdentifier
+        self.initiatorId = initiatorId
+        self.deliveryReadEventsEnabled = deliveryReadEventsEnabled
+        self.deliveredToAll = deliveredToAll
+        self.conversationStatusMessage = conversationStatusMessage
+        self.conversationId = conversationId
+        self.callDurations = callDurations
+        self.action = action
+        self.adminCount = adminCount
+        self.members = members
+        self.enableRecording = enableRecording
+        self.customType = customType
+        self.createdBy = createdBy
+        self.creationTime = creationTime
+        self.audioOnly = audioOnly
+        self.active = active
+        self.autoTerminate = autoTerminate
+        self.selfHosted = selfHosted
+        self.config = config
+        self.hdMeeting = hdMeeting
+        self.rtcToken = rtcToken
+        self.uid = uid
+        self.userId = userId
+        self.senderId = senderId
+        self.body = body
+        self.senderName = senderName
+    }
 }
 
 
@@ -70,55 +146,8 @@ public struct ISMCallConfig: Codable {
 }
 
 
-//public struct ISMMeeting: Codable {
-//
-//    let rtcToken : String?
-//    let uid : Int?
-//    let action : String?
-//    let createdBy : String?
-//    let userId : String?
-//    let members : [ISMCallMember]?
-////    let selfHosted: Bool
-////    let searchableTags: [JSONAny]
-////    let privateOneToOne: JSONNull?
-////    let metaData: MetaData
-////    let membersPublishingCount, membersCount, meetingType: Int
-//    let meetingImageUrl: String?
-//    public  let meetingId, meetingDescription, initiatorName: String?
-//    let initiatorImageUrl: String?
-//    let initiatorIdentifier: String?
-//
-//    // Sender Id of the message publisher
-//    let senderName : String?
-//    let senderId: String?
-//    let body: String?
-//
-////    let hdMeeting, enableRecording: Bool
-//    let customType: String?
-//    let creationTime: Int?
-////    let createdBy: String
-////    let conversationID: JSONNull?
-////    let config: Config
-////    let autoTerminate, audioOnly: Bool
-////    let adminCount: Int
-////
-////    enum CodingKeys: String, CodingKey {
-////        case selfHosted, searchableTags, privateOneToOne, metaData, membersPublishingCount, membersCount, meetingType
-////        case meetingImageURL = "meetingImageUrl"
-////        case meetingID = "meetingId"
-////        case meetingDescription, initiatorName
-////        case initiatorImageURL = "initiatorImageUrl"
-////        case initiatorIdentifier, hdMeeting, enableRecording, customType, creationTime, createdBy
-////        case conversationID = "conversationId"
-////        case config, autoTerminate, audioOnly, adminCount
-////    }
-//
-//    func callType() -> ISMLiveCallType{
-//
-//        return ISMLiveCallType(rawValue: customType ?? "") ?? .AudioCall
-//    }
-//
-//}
+
+
 
 // MARK: - Config
 struct Config: Codable {

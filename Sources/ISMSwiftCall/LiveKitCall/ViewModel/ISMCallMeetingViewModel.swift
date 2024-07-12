@@ -29,9 +29,9 @@ public class ISMCallMeetingViewModel{
     
     }
     
-    public  func createMeeting(memberId:String,conversationId : String? = nil, callType : ISMLiveCallType = .AudioCall, completion :@escaping (ISMMeeting)->()){
+    public  func createMeeting(memberIds:[String],conversationId : String? = nil, callType : ISMLiveCallType , completion :@escaping (ISMMeeting)->()){
         
-        let requestBody = ISMMeetingRequest(members: [memberId],deviceId: ISMDeviceId,customType: callType.rawValue, audioOnly: ISMLiveCallType.AudioCall == .AudioCall, conversationId: conversationId)
+        let requestBody = ISMMeetingRequest(members: memberIds,deviceId: ISMDeviceId,customType: callType.rawValue, audioOnly: callType == .AudioCall, conversationId: conversationId)
         
         let request = ISMCallAPIRequest(endPoint: ISMCallMeetingEndpoints.createMeeting, requestBody: requestBody)
         

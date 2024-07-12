@@ -56,3 +56,15 @@ public struct ISMCallMember: Codable, Hashable {
     }
 
 }
+
+extension ISMCallMember {
+    init(from member: ISMCallUser) {
+        self.memberName = member.userName
+        self.memberIdentifier = member.userIdentifier
+        self.memberId = member.userID
+        self.isPublishing = nil
+        self.isAdmin = nil
+        self.memberProfileImageURL = ""
+    }
+}
+
