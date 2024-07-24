@@ -24,7 +24,7 @@ public class IsometrikCall {
     ///   - members: memebers in meeting
     ///   - conversationId: converstaion id to sync the messages
     ///   - callType: call type , auddio, video or group call.
-    public func startCall(with members: [ISMCallMember], conversationId : String? = nil, callType: ISMLiveCallType ) {
+    public func startCall(with members: [ISMCallMember], conversationId : String? = nil, callType: ISMLiveCallType, groupName : String? = nil ) {
 //        guard let config = configuration else {
 //                   print("Isometrik SDK is not configured.")
 //                   return
@@ -34,8 +34,15 @@ public class IsometrikCall {
 //                   print("Isometrik User ID and/or Isometrik User Token is not set.")
 //                   return
 //               }
+        
+        if callType == .GroupCall{
+            guard groupName == nil else {
+                print("GroupName can not be empty in group call.")
+                return
+            }
+        }
 
-        ISMCallManager.shared.createCall(members: members, conversationId: conversationId, callType: callType)
+        ISMCallManager.shared.createCall(members: members, conversationId: conversationId, callType: callType, meetingDescription: groupName)
     }
     
     public func joinCall(meetingId : String) {

@@ -12,6 +12,7 @@ import AVFoundation
 
 class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvider {
     
+    var members : [ISMCallMember] = []
     var remoteParticipants = [Participant]()
     var customNavBar : ISMCustomNavigationBar?
     var callType : ISMLiveCallType?
@@ -25,6 +26,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     var isSpeakerOn : Bool = false
     var panGesture :  UIPanGestureRecognizer?
     var isMinimised : Bool?
+    private let usersListView = GroupUsersListView()
+    private let noAnswerView = NoAnswerView()
     
     //Padding for floatingview bounds
     let padding = 10.0
@@ -35,7 +38,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     var audioPlayer: AVAudioPlayer?
     
     
-    func didTapBackButton() {
+    func didTapLeftBarButton() {
         guard let window = UIApplication.shared.connectedScenes
             .filter({$0.activationState == .foregroundActive})
             .compactMap({$0 as? UIWindowScene})
@@ -46,6 +49,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         isMinimised = true
         customNavBar?.isHidden = true
         panGesture?.isEnabled = true
+        self.floatingVideoView()?.isHidden = true
         DispatchQueue.main.async {
             self.tapGestureForDraggableView.isEnabled = false
             self.panGestureForDraggableView.isEnabled = false
@@ -57,12 +61,77 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
                 self.autoresizesSubviews = true
                 self.layoutSubviews()
                 self.layoutIfNeeded()
+                self.collectionView.frame = self.bounds
                 self.collectionView.collectionViewLayout.invalidateLayout()
             }
             
             
         }
         
+    }
+    func didTapRightBarButton() {
+        presentUsersListView()
+    }
+    
+    
+    func showNoAnswerView() {
+        self.stopAudio()
+        self.clearScreen()
+        noAnswerView.setCallStatus(text: "\(ISMCallManager.shared.members?.first?.memberName ??   ISMCallManager.shared.members?.first?.memberIdentifier ?? "Unknown")")
+        noAnswerView.isHidden = false
+        self.bringSubviewToFront(noAnswerView)
+        
+        // Hide the blur view after a delay (e.g., 3 seconds)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            self.noAnswerView.isHidden = true
+            self.didTapEndCall()
+        }
+    }
+    
+    private func clearScreen(){
+        self.expandableView.isHidden = true
+        self.customNavBar?.isHidden  = true
+    }
+    
+    private func setNoAnswerView(){
+        noAnswerView.frame = self.bounds
+        noAnswerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        noAnswerView.isHidden = true
+        self.addSubview(noAnswerView)
+    }
+    
+    /// List of members on group call
+    private func setUsersListView(){
+        usersListView.translatesAutoresizingMaskIntoConstraints = false
+        usersListView.isHidden = true
+        self.addSubview(usersListView)
+        NSLayoutConstraint.activate([
+            usersListView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            usersListView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            usersListView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            usersListView.heightAnchor.constraint(equalToConstant: 500)
+        ])
+    }
+    
+    private func presentUsersListView() {
+        
+        usersListView.removeFromSuperview()
+        self.setUsersListView()
+        usersListView.setUsers(members)
+        self.bringSubviewToFront(usersListView)
+        usersListView.transform = CGAffineTransform(translationX: 0, y: usersListView.frame.height)
+        usersListView.isHidden = false
+        UIView.animate(withDuration: 0.3, animations: {
+            self.usersListView.transform = .identity
+        })
+    }
+    
+    func dismissUsersListView() {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.usersListView.transform = CGAffineTransform(translationX: 0, y: self.usersListView.frame.height)
+        }, completion: { _ in
+            self.usersListView.isHidden = true
+        })
     }
     
     private static var privateShared: ISMLiveCallView?
@@ -92,24 +161,19 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             insertSubview(customNavBar, aboveSubview: collectionView)
         }
         self.addCallControls()
-        
-        //        insertSubview(ConnectingLabel, aboveSubview: collectionView)
-        //        NSLayoutConstraint.activate([
-        //            ConnectingLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-        //            ConnectingLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-        //        ])
+        self.setNoAnswerView()
         
         room.add(delegate: self)
         if self.callType == .AudioCall{
             Task {
                 do {
-                   // AudioManager.shared.isSpeakerOutputPreferred = false
+                    // AudioManager.shared.isSpeakerOutputPreferred = false
                 }
             }
         }
         self.connect()
         
-        
+        self.customNavBar?.hideRightBarButton = callType != .GroupCall
     }
     
     private init( frame : CGRect, rtcToken: String, meetingId : String? = nil, callType : ISMLiveCallType?) {
@@ -154,7 +218,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         layout.minimumLineSpacing = .zero
         layout.minimumInteritemSpacing = .zero
         
-        let cv = ISMLiveCallCollectionView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height), collectionViewLayout: layout)
+        let cv = ISMLiveCallCollectionView(frame: self.bounds, collectionViewLayout: layout)
         cv.backgroundColor = .black
         cv.delegate = self
         cv.register(ISMLiveCallCollectionViewCell.self, forCellWithReuseIdentifier: "ISMLiveCallCollectionViewCell")
@@ -178,7 +242,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             }
         }
     }
-
+    
     
     
     
@@ -340,7 +404,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         DispatchQueue.main.async {
             self.expandableView.updateMuteStatus(isMute: self.isMute)
         }
-   
+        
     }
     
     
@@ -355,14 +419,14 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.soloAmbient)
-              try audioSession.setActive(true)
+            try audioSession.setActive(true)
         } catch {
             print("Setting category to AVAudioSessionCategoryPlayback failed.")
         }
         
         
         if !appearance.soundFiles.ringer.isEmpty {
-        
+            
             
             let url = URL(fileURLWithPath: appearance.soundFiles.ringer)
             do {
@@ -454,11 +518,13 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         panGesture?.isEnabled = false
         customNavBar?.isHidden = false
         isMinimised = false
+        self.floatingVideoView()?.isHidden = false
         DispatchQueue.main.async {
             self.tapGestureForDraggableView.isEnabled = true
             self.panGestureForDraggableView.isEnabled = true
             UIView.animate(withDuration: 0.5) {
                 self.frame = window.bounds
+                self.collectionView.frame = self.bounds
                 self.collectionView.collectionViewLayout.invalidateLayout()
             }completion: { isCompleted in
                 self.layoutSubviews()
@@ -484,7 +550,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         
         // Size of floating video view
         let size = min(self.frame.width, self.frame.height) * 0.3
- 
+        
         
         if gesture.state == .ended {
             if draggableView.frame.midX >= self.layer.frame.width / 2 {
@@ -614,6 +680,11 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
                 return
             }
             
+            guard self.callType == .VideoCall, remotePaticipants.count == 1  else{
+                self.floatingVideoView()?.removeFromSuperview()
+                return
+            }
+            
             
             self.floatingVideoView()?.removeFromSuperview()
             self.addFloatingVideoView()
@@ -661,133 +732,11 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
 }
 
 
-extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
-    
-    // Turn on speaker
-    func turnOnSpeaker() {
-        do {
-//            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .voiceChat, options: .defaultToSpeaker)
-//            try AVAudioSession.sharedInstance().setActive(true)
-            
-            let session = AVAudioSession.sharedInstance()
-                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
-            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.speaker) // Set preferred output port
-                  try session.setActive(true)
-            
-        } catch {
-            print("Error setting audio session category: \(error)")
-        }
-    }
-
-    // Turn off speaker
-    func turnOffSpeaker() {
-        do {
-            let session = AVAudioSession.sharedInstance()
-                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
-            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.none) // Set preferred output port
-                  try session.setActive(true)
-        } catch {
-            print("Error setting audio session category: \(error)")
-        }
-    }
-    
-    func didTapSwitchAudioOutput() {
-        
-        isSpeakerOn = !isSpeakerOn
-        
-        
-        if isSpeakerOn{
-            turnOnSpeaker()
-        }else{
-            turnOffSpeaker()
-        }
-        
-//        Task {
-//            do {
-//               // AudioManager.shared.isSpeakerOutputPreferred = isSpeakerOn
-//                
-//            }
-//        }
-        
-        updateSpeakerStatus()
-    }
-    
-    func didTapDeclineVideoCallRequest() {
-        ISMCallManager.shared.publishMessage(message:.requestToSwitchToVideoCallRejected)
-        
-    }
-    
-    func didTapAcceptVideoCallRequest() {
-        Task {
-            do {
-                try await  self.room.localParticipant.setCamera(enabled: true)
-                self.callType = .VideoCall
-                updateParticipantsLayout()
-                
-            }
-        }
-        ISMCallManager.shared.publishMessage(message:.requestToSwitchToVideoCallAccepted)
-    }
-    
-    func didToggleTheHeight(isExpanded:Bool) {
-        
-    }
-    
-    func didTapEndCall() {
-        if ISMCallManager.shared.callIDs.isEmpty{
-            ISMCallManager.shared.leaveCall()
-        }else{
-            
-         ISMCallManager.shared.endCall(callUUID: ISMCallManager.shared.callIDs.first ?? UUID())
-        }
-        self.disconnectCall()
-        
-    }
-    
-    func didTapMute() {
-        self.isMute = !self.isMute
-        updateMuteStatus()
-        ISMCallManager.shared.updateMuteStatus(isMute: self.isMute)
-    }
-    
-    func didTapSwitchCamera() {
-        guard let trackPublication = room.localParticipant.localVideoTracks.first,
-              let videoTrack = trackPublication.track as? LocalVideoTrack,
-              let cameraCapturer = videoTrack.capturer as? CameraCapturer else { return }
-        
-        Task {
-            do {
-                try await   _ = cameraCapturer.switchCameraPosition()
-                
-            }
-        }
-    }
-    
-    
-    func didTapSwitchVideo(turnVideoOn : Bool) {
-        
-        Task {
-            do {
-                try await  self.room.localParticipant.setCamera(enabled: turnVideoOn)
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-                
-            }
-        }
-        if callType == .AudioCall, turnVideoOn{
-            requestToSwitchToVideoCall()
-        }
-    }
-    
-}
 
 
 
 
-protocol ISMCustomNavigationBarDelegate {
-    func didTapBackButton()
-}
+
 
 
 

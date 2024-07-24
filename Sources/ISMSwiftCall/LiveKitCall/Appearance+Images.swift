@@ -48,6 +48,8 @@ public extension Appearance {
         public var speakerOff: UIImage = loadImageSafely(with: "speakerOff")
         public var speakerOn: UIImage = loadImageSafely(with: "speakerOn")
         public var profileAvatar : UIImage = loadImageSafely(with: "profile_avatar")
+        public var group: UIImage = loadImageSafely(with: "group")
+        public var minimize: UIImage = loadImageSafely(with: "minimize")
         
     }
 }

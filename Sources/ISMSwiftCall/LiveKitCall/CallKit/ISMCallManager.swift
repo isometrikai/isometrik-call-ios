@@ -199,7 +199,7 @@ extension ISMCallManager{
         print("Call is being hung up due to no answer.")
         //Outgoing call
         if let callUUID = self.outgoingCallID {
-            self.endCall(callUUID:callUUID)
+            ISMLiveCallView.shared.showNoAnswerView()
         }//Incoming call
         else if let callUUID = self.callIDs.first {
             self.endCall(callUUID:callUUID)
@@ -524,6 +524,15 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     
+    func fetchMembers(meetingId : String, completion :@escaping ([ISMCallMember])->()){
+        
+        self.viewModel.fetchMembersInMeeting(meetingId:meetingId) { members in
+            
+          completion(members)
+        }
+    }
+    
+    
     func joinCall(meetingId : String){
         
         guard  ISMLiveCallView.shared.meetingId == nil else {
@@ -543,14 +552,14 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     
-    func createCall(members : [ISMCallMember], conversationId : String? = nil, callType : ISMLiveCallType){
+    func createCall(members : [ISMCallMember], conversationId : String? = nil, callType : ISMLiveCallType, meetingDescription : String?){
         
         let memberIds = members.compactMap{ $0.memberId }
         guard !memberIds.isEmpty else{
             return
         }
         let type : ISMLiveCallType = members.count > 1 ? .GroupCall  : callType
-        self.viewModel.createMeeting(memberIds:memberIds,conversationId:conversationId,callType: type) { callDetails in
+        self.viewModel.createMeeting(memberIds:memberIds,conversationId:conversationId,callType: type, meetingDescription: meetingDescription) { callDetails in
             
             guard let rtcToken = callDetails.rtcToken, let meetingId = callDetails.meetingId else{
                 return
