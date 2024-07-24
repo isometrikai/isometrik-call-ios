@@ -118,7 +118,7 @@ class GroupUsersListView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     
     private func loadData(_ members: [ISMCallMember]){
-        let users = members.filter{!($0.memberId != ISMConfiguration.getUserId())}
+        let users = members.filter{ $0.memberId != ISMConfiguration.getUserId()}
         
         self.connectedUsers = users.filter({ $0.isPublishing ?? false
         })
