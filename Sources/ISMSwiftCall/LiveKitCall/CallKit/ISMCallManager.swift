@@ -552,14 +552,14 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     
-    func createCall(members : [ISMCallMember], conversationId : String? = nil, callType : ISMLiveCallType, groupName : String){
+    func createCall(members : [ISMCallMember], conversationId : String? = nil, callType : ISMLiveCallType, meetingDescription : String?){
         
         let memberIds = members.compactMap{ $0.memberId }
         guard !memberIds.isEmpty else{
             return
         }
         let type : ISMLiveCallType = members.count > 1 ? .GroupCall  : callType
-        self.viewModel.createMeeting(memberIds:memberIds,conversationId:conversationId,callType: type, groupName: groupName ) { callDetails in
+        self.viewModel.createMeeting(memberIds:memberIds,conversationId:conversationId,callType: type, meetingDescription: meetingDescription) { callDetails in
             
             guard let rtcToken = callDetails.rtcToken, let meetingId = callDetails.meetingId else{
                 return
