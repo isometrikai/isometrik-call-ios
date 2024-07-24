@@ -675,12 +675,17 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     func updateTheFloatingParticipant(remotePaticipants:[Participant]){
         DispatchQueue.main.async {
-            guard self.callType != .AudioCall else{
+            if self.callType == .AudioCall {
                 self.floatingVideoView()?.removeFromSuperview()
                 return
             }
             
-            guard self.callType == .VideoCall, remotePaticipants.count == 1  else{
+            if self.callType == .VideoCall, remotePaticipants.count == 0 {
+                self.floatingVideoView()?.removeFromSuperview()
+                return
+            }
+            
+            if self.callType == .GroupCall, remotePaticipants.count == 0 {
                 self.floatingVideoView()?.removeFromSuperview()
                 return
             }
