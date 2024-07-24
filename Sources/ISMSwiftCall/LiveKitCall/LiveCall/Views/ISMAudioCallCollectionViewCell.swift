@@ -19,7 +19,6 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         setupViews()
     }
     
@@ -36,20 +35,13 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
         // Adjust the views inside the cell
         self.profileView.topSpaceView.isHidden = self.bounds.size.height < 200
         self.profileView.timerLabel.isHidden = self.bounds.size.height < 200
-
     }
     
     // MARK: - Setup
     private func setupViews() {
-        
-        
+        profileView.frame = bounds
+        profileView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.addSubview(profileView)
-             profileView.translatesAutoresizingMaskIntoConstraints = false
-             NSLayoutConstraint.activate([
-                 profileView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor,constant: 0),
-                 profileView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-                 profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-             ])
     }
     
     // MARK: - Public Methods
@@ -100,5 +92,47 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
         let seconds = Int(elapsedTime) % 60
         profileView.timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
         // print("Timer: \(timerString)")
+    }
+}
+
+class ProfileView: UIView {
+
+    let topSpaceView = UIView()
+    let nameLabel = UILabel()
+    let timerLabel = UILabel()
+    let profileImageView = UIImageView()
+    var stackView = UIStackView()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+    }
+    
+    private func setupView() {
+        stackView = UIStackView(arrangedSubviews: [topSpaceView,profileImageView, nameLabel, timerLabel])
+        stackView.axis = .vertical
+        stackView.alignment = .center
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stackView)
+        
+        topSpaceView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
+        nameLabel.textAlignment = .center
+        timerLabel.textAlignment = .center
+        
+        profileImageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        profileImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
+            stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20)
+        ])
     }
 }

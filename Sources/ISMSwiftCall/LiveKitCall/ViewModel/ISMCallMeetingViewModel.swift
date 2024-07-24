@@ -29,9 +29,9 @@ public class ISMCallMeetingViewModel{
     
     }
     
-    public  func createMeeting(memberIds:[String],conversationId : String? = nil, callType : ISMLiveCallType , completion :@escaping (ISMMeeting)->()){
+    public  func createMeeting(memberIds:[String],conversationId : String? = nil, callType : ISMLiveCallType ,groupName : String , completion :@escaping (ISMMeeting)->()){
         
-        let requestBody = ISMMeetingRequest(members: memberIds,deviceId: ISMDeviceId,customType: callType.rawValue, audioOnly: callType == .AudioCall, conversationId: conversationId)
+        let requestBody = ISMMeetingRequest(members: memberIds,meetingDescription : groupName, deviceId: ISMDeviceId,customType: callType.rawValue, audioOnly: callType == .AudioCall, conversationId: conversationId)
         
         let request = ISMCallAPIRequest(endPoint: ISMCallMeetingEndpoints.createMeeting, requestBody: requestBody)
         
@@ -178,6 +178,28 @@ public class ISMCallMeetingViewModel{
             }
         }
     
+    }
+    
+    
+    /// fetch all memebers in meeting
+    /// - Parameters:
+    ///   - meetingId: meetingId
+    ///   - completion: return the list
+    public func fetchMembersInMeeting(meetingId : String,completion :@escaping ([ISMCallMember])->()){
+
+        let request = ISMCallAPIRequest<Any>(endPoint: ISMCallMeetingEndpoints.fetchMembers(meetingId:meetingId ), requestBody: nil)
+        
+        ISMCallAPIManager.sendRequest(request: request) { (result : ISMResult<ISMMeetingMembers,ISMCallAPIError>) in
+            
+            switch result{
+            case .success(let response,_) :
+                completion(response.meetingMembers ?? [])
+            case .failure(_) :
+                completion([])
+            }
+            
+            
+        }
     }
     
 }

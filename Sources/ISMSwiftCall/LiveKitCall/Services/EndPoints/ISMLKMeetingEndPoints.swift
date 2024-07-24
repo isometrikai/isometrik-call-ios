@@ -17,6 +17,7 @@ enum ISMCallMeetingEndpoints : ISMURLConvertible {
     case leaveMeeting(meetingId : String)
     case publishMessage
     case updateUser
+    case fetchMembers(meetingId : String)
     
     var baseURL: URL {
         return URL(string:"https://apis.isometrik.io")!
@@ -40,6 +41,8 @@ enum ISMCallMeetingEndpoints : ISMURLConvertible {
             return "/meetings/v1/accept"
         case .rejectMeeting:
             return "/meetings/v1/reject"
+        case .fetchMembers:
+            return "/meetings/v1/members"
         }
     }
     
@@ -61,6 +64,8 @@ enum ISMCallMeetingEndpoints : ISMURLConvertible {
             return .post
         case .rejectMeeting:
             return .post
+        case .fetchMembers:
+            return .get
         }
     }
     
@@ -82,12 +87,14 @@ enum ISMCallMeetingEndpoints : ISMURLConvertible {
             return nil
         case .rejectMeeting:
             return nil
+        case .fetchMembers(let meetingId):
+            return ["meetingId" : meetingId]
         }
     }
     
     var headers: [String: String]? {
         switch self {
-        case .getMeetings,.createMeeting, .startPublishing,.leaveMeeting,.publishMessage,.updateUser,.accpetMeeting,.rejectMeeting:
+        case .getMeetings,.createMeeting, .startPublishing,.leaveMeeting,.publishMessage,.updateUser,.accpetMeeting,.rejectMeeting,.fetchMembers:
             return ["appSecret":ISMConfiguration.getAppSecret(),
                     "userToken" : ISMConfiguration.getUserToken() ,
                     "licenseKey" : ISMConfiguration.getLicenseKey()
