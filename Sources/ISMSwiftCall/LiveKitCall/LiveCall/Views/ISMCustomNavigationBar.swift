@@ -23,6 +23,7 @@ class ISMCustomNavigationBar: UIView,AppearanceProvider {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.textAlignment = .center
+        label.textColor = .white
         return label
     }()
     
@@ -56,7 +57,7 @@ class ISMCustomNavigationBar: UIView,AppearanceProvider {
         backgroundColor =  .clear
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.leadingAnchor.constraint(equalTo: backButton.leadingAnchor,constant: 10 ).isActive = true
+        titleLabel.leadingAnchor.constraint(equalTo: backButton.trailingAnchor,constant: 10 ).isActive = true
         titleLabel.trailingAnchor.constraint(equalTo: groupMembersButton.leadingAnchor ,constant: 10 ).isActive = true
         titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         

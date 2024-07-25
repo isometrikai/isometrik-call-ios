@@ -40,6 +40,7 @@ class ISMExpandableCallControlsView: UIView , AppearanceProvider{
     
     lazy var videoRequestView : UIView = {
         let requestView = UIView()
+        requestTitle.textColor = .white
         requestTitle.textAlignment = .center
         requestTitle.translatesAutoresizingMaskIntoConstraints = false
         requestView.addSubview(requestTitle)
@@ -77,7 +78,7 @@ class ISMExpandableCallControlsView: UIView , AppearanceProvider{
             requestTitle.leadingAnchor.constraint(equalTo: requestView.leadingAnchor, constant: 0),
             requestTitle.trailingAnchor.constraint(equalTo: requestView.trailingAnchor, constant: 0),
             stackView.topAnchor.constraint(equalTo: requestTitle.bottomAnchor, constant:20),
-            stackView.bottomAnchor.constraint(equalTo: requestView.bottomAnchor, constant: -20),
+            stackView.bottomAnchor.constraint(equalTo: requestView.bottomAnchor, constant: 0),
             stackView.leadingAnchor.constraint(equalTo: requestView.leadingAnchor, constant: 0),
             stackView.trailingAnchor.constraint(equalTo: requestView.trailingAnchor, constant: 0),
             stackView.heightAnchor.constraint(equalToConstant: 50)
@@ -163,15 +164,13 @@ class ISMExpandableCallControlsView: UIView , AppearanceProvider{
         
         let controlsActionsStack  = UIStackView(arrangedSubviews: [self.videoRequestView, self.callControlStackView])
         controlsActionsStack.axis = .vertical
-        controlsActionsStack.distribution = .fillEqually
-        controlsActionsStack.spacing = 10
         
         addSubview(controlsActionsStack)
         
         controlsActionsStack.translatesAutoresizingMaskIntoConstraints = false
         controlsActionsStack.leadingAnchor.constraint(equalTo: leadingAnchor,constant: 15).isActive = true
         controlsActionsStack.trailingAnchor.constraint(equalTo: trailingAnchor,constant: -15).isActive = true
-        controlsActionsStack.topAnchor.constraint(equalTo: topAnchor,constant: 50).isActive = true
+        controlsActionsStack.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         
         
 //        addSubview(arrowImageView)

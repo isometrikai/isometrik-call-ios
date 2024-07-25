@@ -125,6 +125,8 @@ class ProfileView: UIView {
         
         nameLabel.textAlignment = .center
         timerLabel.textAlignment = .center
+        nameLabel.textColor = .white
+        timerLabel.textColor = .white
         
         profileImageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true

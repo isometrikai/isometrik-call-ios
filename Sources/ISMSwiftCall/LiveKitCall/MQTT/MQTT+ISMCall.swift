@@ -52,8 +52,7 @@ public struct CallEventHandler {
         case .memberLeft :
             delegate?.didMemberLeaveTheMeeting(meeting: meeting)
        case .joinRequestReject:
-            if ISMCallManager.shared.callDetails?.meetingId == meeting?.meetingId,let callID = ISMCallManager.shared.callIDs.first{
-//                ISMCallManager.shared.endCall(callUUID: callID)
+            if ISMCallManager.shared.callDetails?.meetingId == meeting?.meetingId,let callID = ISMCallManager.shared.callIDs.first,  ISMCallManager.shared.callDetails?.callType() != .GroupCall{
                 ISMLiveCallView.shared.showNoAnswerView()
             }
             delegate?.didReceiveJoinRequestReject(meeting: meeting)
@@ -63,7 +62,7 @@ public struct CallEventHandler {
             if let senderId =  meeting?.userId, senderId != ISMConfiguration.getUserId(), ISMCallManager.shared.outgoingCallID != nil{
                 ISMCallManager.shared.startTheCall()
             }else if  meeting?.userId ==  ISMConfiguration.getUserId(),let callID = ISMCallManager.shared.callIDs.first, (ISMCallManager.shared.callActiveOnDeviceId == nil)  {
-               // Notes : handle the scenario for session multiple devices. If one device accept the call end for others
+               // Notes : handle the scenario for session on multiple devices. If call is accepted on one device, end on other devices.
                 ISMCallManager.shared.endCall(callUUID: callID)
             }
             delegate?.didReceiveJoinRequestAccept(meeting: meeting)

@@ -254,8 +254,10 @@ public extension ISMCallManager{
             let callDetails = pushPayload
             
             
+            let handleName = callDetails.callType() == .GroupCall ? callDetails.meetingDescription ?? "Group Call" : callDetails.initiatorName ?? ""
+            
             let update = CXCallUpdate()
-            update.remoteHandle = CXHandle(type: .generic, value: callDetails.initiatorName ?? "")
+            update.remoteHandle = CXHandle(type: .generic, value: handleName)
             
             // 2: Create and set configurations about how the calling application should behave
             
@@ -571,6 +573,8 @@ extension ISMCallManager : CXProviderDelegate{
             // Code to be excluded on the simulator
             if type != .GroupCall,members.count == 1 , let callUser = members.first {
                 self.reportOutgoingCall(handleName: callUser.memberName ?? callUser.memberIdentifier ?? "",token: rtcToken,meetingId: meetingId, videoEnabled: type == .VideoCall)
+            }else if let meetingDescription, !meetingDescription.isEmpty{
+                self.reportOutgoingCall(handleName: meetingDescription ,token: rtcToken,meetingId: meetingId, videoEnabled: true)
             }
 #endif
             

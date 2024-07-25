@@ -144,6 +144,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     }
     
     func configure( frame : CGRect, rtcToken: String, meetingId : String? = nil,callType : ISMLiveCallType, isInitiator : Bool) {
+        self.dismissEditing()
         self.rtcToken = rtcToken
         self.meetingId = meetingId
         self.callType = callType
@@ -176,6 +177,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         self.customNavBar?.hideRightBarButton = callType != .GroupCall
     }
     
+
+    
     private init( frame : CGRect, rtcToken: String, meetingId : String? = nil, callType : ISMLiveCallType?) {
         self.rtcToken = rtcToken
         self.meetingId = meetingId
@@ -205,6 +208,11 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     static func reset() {
         privateShared = nil
         privateShared = nil
+    }
+    private func dismissEditing(){
+        // Dismiss if any open keyboard or ediitng.
+        self.endEditing(true)
+        UIApplication.shared.endEditing()
     }
     
     deinit {
@@ -279,6 +287,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         name.text = ""
         name.font = UIFont.systemFont(ofSize: 10)
         name.numberOfLines = 0
+        name.textColor = .white
         return name
     }()
     
@@ -508,6 +517,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     
     func maximiseTheView(){
+        self.dismissEditing()
         guard isMinimised ?? false, let window = UIApplication.shared.connectedScenes
             .filter({$0.activationState == .foregroundActive})
             .compactMap({$0 as? UIWindowScene})

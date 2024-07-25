@@ -36,7 +36,7 @@ public class IsometrikCall {
 //               }
         
         if callType == .GroupCall{
-            guard groupName == nil else {
+            guard groupName != nil else {
                 print("GroupName can not be empty in group call.")
                 return
             }

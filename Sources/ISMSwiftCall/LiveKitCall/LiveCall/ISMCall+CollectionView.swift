@@ -79,7 +79,7 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
         let numberOfItems = collectionView.numberOfItems(inSection: indexPath.section)
         switch numberOfItems {
            case 1:
-               return CGSize(width: width, height: height)
+               return CGSize(width: screenSize.width, height: screenSize.height)
            case 2:
             return CGSize(width: screenSize.width, height: height / 2)
            case 3:
