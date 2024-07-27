@@ -79,7 +79,10 @@ struct ISMCallAPIManager {
     static func sendRequest<T: Codable, R:Any>(request: ISMCallAPIRequest<R>,showLoader:Bool = true, completion: @escaping (_ result : ISMResult<T, ISMCallAPIError>) -> Void) {
         
         if showLoader{
-            ISMShowLoader.sharerd.startLoading()
+            DispatchQueue.main.async {
+                ISMShowLoader.sharerd.startLoading()
+            }
+          
         }
         
         var urlComponents = URLComponents(url: request.endPoint.baseURL.appendingPathComponent(request.endPoint.path), resolvingAgainstBaseURL: true)
@@ -106,7 +109,9 @@ struct ISMCallAPIManager {
                 urlRequest.httpBody = jsonBody
             } catch {
                 completion(.failure(.invalidResponse))
-                ISMShowLoader.sharerd.stopLoading()
+                DispatchQueue.main.async {
+                    ISMShowLoader.sharerd.stopLoading()
+                }
                 return
             }
         }
@@ -114,7 +119,9 @@ struct ISMCallAPIManager {
         let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             guard let httpResponse = response as? HTTPURLResponse else {
                 completion(.failure(.invalidResponse))
-                ISMShowLoader.sharerd.stopLoading()
+                DispatchQueue.main.async {
+                    ISMShowLoader.sharerd.stopLoading()
+                }
                 return
             }
             if let error = error {
@@ -166,7 +173,9 @@ struct ISMCallAPIManager {
             }
             
             if showLoader{
-                ISMShowLoader.sharerd.stopLoading()
+                DispatchQueue.main.async {
+                    ISMShowLoader.sharerd.stopLoading()
+                }
             }
         }
         

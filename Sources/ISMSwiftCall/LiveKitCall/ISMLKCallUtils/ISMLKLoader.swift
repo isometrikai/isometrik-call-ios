@@ -63,20 +63,16 @@ class ISMShowLoader {
     
     // To start the indicator
     func startLoading() {
-        DispatchQueue.main.async {
             self.updateTopMostController()
             self.customAPIIndicatorView?.startAnimating()
             self.topMostViewController?.view.addSubview(self.customAPIIndicatorView!)
-        }
-        
+
     }
     
     // To stop the indicator
     func stopLoading() {
-        DispatchQueue.main.async {
             self.customAPIIndicatorView?.stopAnimating()
             self.customAPIIndicatorView?.removeFromSuperview()
-        }
     }
     
     
