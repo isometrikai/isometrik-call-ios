@@ -11,6 +11,7 @@ import LiveKit
 
 class ISMLiveCallCollectionViewCell: UICollectionViewCell {
     
+    let profileView = ProfileView()
     public let callStatus = UILabel()
     public let name =  UILabel()
     public static var instanceCounter: Int = 0
@@ -53,14 +54,12 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
                 oldValue.remove(delegate: self)
                 videoView.track = nil
                 videoView.removeFromSuperview()
-                addVideoView()
-                
             }
             
             if let participant {
                 // listen to events
                 participant.add(delegate: self)
-                videoView.track = nil
+              //  videoView.track = nil
                 setFirstVideoTrack()
                 // make sure the cell will call layoutSubviews()
                 setNeedsLayout()
@@ -88,19 +87,32 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         videoView.frame = contentView.bounds
+        profileView.frame = contentView.bounds
+        self.profileView.topSpaceView.isHidden = self.bounds.size.height < 200
+        self.profileView.timerLabel.isHidden = self.bounds.size.height < 200
         videoView.setNeedsLayout()
     }
     
     private func setFirstVideoTrack() {
-        let track = participant?.mainVideoTrack
-        videoView.track = track
+        if let track = participant?.mainVideoTrack{
+            addVideoView()
+            videoView.track = track
+            profileView.isHidden = true
+            self.bringSubviewToFront(videoView)
+        }else{
+            videoView.isHidden = true
+            profileView.isHidden = false
+            self.bringSubviewToFront(profileView)
+        }
     }
     
     override init(frame: CGRect) {
         Self.instanceCounter += 1
         cellId = Self.instanceCounter
         super.init(frame: frame)
+        self.addProfileView()
         addVideoView()
+        
         
         name.text = ""
         name.textColor = .white
@@ -135,10 +147,17 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(videoView)
     }
     
-    func setDetails(name : String?, status : ISMCallStatus){
-        self.name.isHidden = name == nil
+    func addProfileView(){
+        profileView.frame = bounds
+        profileView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.addSubview(profileView)
+    }
+    func setDetails(member: ISMCallMember?,status: ISMCallStatus?){
+        profileView.nameLabel.text = member?.memberName
+        profileView.profileImageView.setImage(urlString:member?.memberProfileImageURL)
+        
         self.callStatus.isHidden = status == .started
-        self.callStatus.text = status.rawValue
+        self.callStatus.text = status?.rawValue
         self.hideDetails = status == .started
     }
     

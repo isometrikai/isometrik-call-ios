@@ -13,7 +13,7 @@ import AVFoundation
 class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvider {
     
     var members : [ISMCallMember] = []
-    var remoteParticipants = [Participant]()
+    var remoteParticipants : [Participant] = []
     var customNavBar : ISMCustomNavigationBar?
     var callType : ISMLiveCallType?
     var timer : Timer?
@@ -58,11 +58,11 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             self.clipsToBounds = true
             UIView.animate(withDuration: 0.5) {
                 self.frame = CGRect(x: window.frame.width - 160, y: window.frame.height - (190 + window.safeAreaInsets.bottom), width: 150, height: 180)
-                self.autoresizesSubviews = true
-                self.layoutSubviews()
-                self.layoutIfNeeded()
                 self.collectionView.frame = self.bounds
                 self.collectionView.collectionViewLayout.invalidateLayout()
+            }completion: { isCompleted in
+                self.layoutSubviews()
+                self.layoutIfNeeded()
             }
             
             
@@ -202,6 +202,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         if let videoView = floatingVideoView(){
             let size = min(frame.width, frame.height) * 0.3
             videoView.frame = CGRect(x:self.bounds.width - (size + padding) , y: self.bounds.height - (size + self.expandableView.collapsedHeight + padding), width: size, height: size)
+            videoView.layoutSubviews()
         }
     }
     
@@ -244,112 +245,9 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     var localParticipant : LocalParticipant? {
         
         didSet{
-            DispatchQueue.main.async {
                 self.updateParticipantsLayout()
-                self.collectionView.reloadData()
-            }
         }
     }
-    
-    
-    
-    
-    
-    lazy var focusVideoPausedImageView : UIImageView = {
-        let videoPausedImageView = UIImageView()
-        videoPausedImageView.image = #imageLiteral(resourceName: "profile_avatar")
-        videoPausedImageView.contentMode = .scaleAspectFill
-        videoPausedImageView.clipsToBounds = true
-        videoPausedImageView.autoresizesSubviews = true
-        videoPausedImageView.backgroundColor = .black
-        
-        return videoPausedImageView
-    }()
-    
-    lazy var draggableVideoPausedImageView : UIImageView = {
-        let videoPausedImageView = UIImageView()
-        videoPausedImageView.image = #imageLiteral(resourceName: "profile_avatar")
-        videoPausedImageView.contentMode = .scaleAspectFit
-        videoPausedImageView.clipsToBounds = true
-        videoPausedImageView.autoresizesSubviews = true
-        videoPausedImageView.backgroundColor = .black
-        return videoPausedImageView
-    }()
-    
-    lazy var focusMemberNameLabel : UILabel = {
-        let name = UILabel()
-        name.text = ""
-        return name
-    }()
-    
-    lazy var draggableMemberNameLabel : UILabel = {
-        let name = UILabel()
-        name.text = ""
-        name.font = UIFont.systemFont(ofSize: 10)
-        name.numberOfLines = 0
-        name.textColor = .white
-        return name
-    }()
-    
-    
-    
-    lazy var placeholderForFocusedView : UIView = {
-        let videoPaused = UIView()
-        videoPaused.backgroundColor = .black
-        videoPaused.addSubview(self.focusVideoPausedImageView)
-        videoPaused.addSubview(self.focusMemberNameLabel)
-        self.focusVideoPausedImageView.translatesAutoresizingMaskIntoConstraints = false
-        self.focusMemberNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            self.focusVideoPausedImageView.widthAnchor.constraint(equalToConstant: 300),
-            self.focusVideoPausedImageView.heightAnchor.constraint(equalToConstant: 300),
-            
-            self.focusVideoPausedImageView.centerXAnchor.constraint(equalTo: videoPaused.centerXAnchor),
-            self.focusVideoPausedImageView.centerYAnchor.constraint(equalTo: videoPaused.centerYAnchor),
-            
-            self.focusMemberNameLabel.centerXAnchor.constraint(equalTo: self.focusVideoPausedImageView.centerXAnchor),
-            self.focusMemberNameLabel.topAnchor.constraint(equalTo: self.focusVideoPausedImageView.bottomAnchor, constant: 20)
-            
-        ])
-        
-        videoPaused.clipsToBounds = true
-        return videoPaused
-    }()
-    
-    lazy var placeholderForDraggableView : UIView = {
-        let videoPaused = UIView()
-        videoPaused.backgroundColor = .black
-        videoPaused.layer.cornerRadius = 3
-        videoPaused.clipsToBounds = true
-        videoPaused.layer.borderWidth = 0.2
-        videoPaused.layer.borderColor = UIColor.gray.cgColor
-        
-        let videoPausedImageView = UIImageView()
-        videoPausedImageView.image = #imageLiteral(resourceName: "profile_avatar")
-        videoPausedImageView.contentMode = .scaleAspectFit
-        videoPausedImageView.clipsToBounds = true
-        
-        videoPaused.addSubview(self.draggableVideoPausedImageView)
-        videoPaused.addSubview(self.draggableMemberNameLabel)
-        self.draggableVideoPausedImageView.translatesAutoresizingMaskIntoConstraints = false
-        self.draggableMemberNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            self.draggableVideoPausedImageView.widthAnchor.constraint(equalToConstant: 50),
-            self.draggableVideoPausedImageView.heightAnchor.constraint(equalToConstant: 50),
-            
-            self.draggableVideoPausedImageView.centerXAnchor.constraint(equalTo: videoPaused.centerXAnchor),
-            self.draggableVideoPausedImageView.centerYAnchor.constraint(equalTo: videoPaused.centerYAnchor),
-            
-            self.draggableMemberNameLabel.centerXAnchor.constraint(equalTo: self.draggableVideoPausedImageView.centerXAnchor),
-            self.draggableMemberNameLabel.topAnchor.constraint(equalTo: self.draggableVideoPausedImageView.bottomAnchor, constant: 5)
-            
-        ])
-        return videoPaused
-    }()
-    
-    
-    
-    
     
     
     private let expandableView: ISMExpandableCallControlsView = {
@@ -357,8 +255,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         return view
     }()
     
-    
-    
+
     
     lazy var panGestureForDraggableView : UIPanGestureRecognizer = {
         
@@ -591,11 +488,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     
     @objc func handleTapGestureForDraggableView(gesture: UITapGestureRecognizer){
-        
-        DispatchQueue.main.async { [self] in
             keepLocalAsFocusParticipant  = !keepLocalAsFocusParticipant
             updateParticipantsLayout()
-        }
         
     }
     
@@ -659,12 +553,9 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         
         Task {
             do {
-                try await  self.room.localParticipant.setCamera(enabled: true)
                 self.callType = .VideoCall
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-                
+                self.updateParticipantsLayout()
+                try await  self.room.localParticipant.setCamera(enabled: true)
             }
         }
     }
@@ -679,7 +570,6 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     
     func participantUpdated(participant : Participant){
-        
         updateParticipantsLayout()
     }
     
@@ -701,26 +591,26 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             }
             
             
-            self.floatingVideoView()?.removeFromSuperview()
-            self.addFloatingVideoView()
-            if self.keepLocalAsFocusParticipant{
-                self.floatingVideoView()?.track = remotePaticipants.first?.mainVideoTrack
-            }else{
-                self.floatingVideoView()?.track = self.room.localParticipant.mainVideoTrack
+            if self.floatingVideoView() == nil{
+                self.addFloatingVideoView()
             }
-            
+            self.updateFloatingViewTracks(remoteVideoTrack: remotePaticipants.first?.mainVideoTrack)
         }
-        
-        
-        
+    }
+    
+    func updateFloatingViewTracks(remoteVideoTrack:VideoTrack?){
+        if self.keepLocalAsFocusParticipant{
+            self.floatingVideoView()?.setVideoTracks(track: remoteVideoTrack)
+        }else{
+            self.floatingVideoView()?.setVideoTracks(track:self.room.localParticipant.mainVideoTrack)
+        }
     }
     
     func addFloatingVideoView(){
-        let floatingVideoView = VideoView()
-        floatingVideoView.layoutMode = .fill
+        let floatingVideoView = FloatingView()
+        floatingVideoView.videoView.layoutMode = .fill
         floatingVideoView.layer.cornerRadius = 3
         floatingVideoView.clipsToBounds = true
-        floatingVideoView.isHidden = false
         floatingVideoView.backgroundColor = .black
         floatingVideoView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -738,15 +628,54 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     /// To get the floading video view if it is added in view
     /// - Returns: vfloatimg video view instance
-    func floatingVideoView() -> VideoView?{
+    func floatingVideoView() -> FloatingView?{
         return self.subviews.first {
-            $0.isKind(of: VideoView.self)
-        } as? VideoView
+            $0.isKind(of: FloatingView.self)
+        } as? FloatingView
     }
     
 }
 
 
+ class FloatingView : UIView{
+     let videoView = VideoView()
+     let profileView = ProfileView()
+     
+     override init(frame: CGRect) {
+         super.init(frame: frame)
+         self.addSubview(videoView)
+         self.addSubview(profileView)
+         profileView.isHidden = true
+         profileView.timerLabel.isHidden = true
+         profileView.topSpaceView.isHidden = true
+ 
+     }
+     
+     required init?(coder: NSCoder) {
+         fatalError("init(coder:) has not been implemented")
+     }
+     
+     func setVideoTracks(track : VideoTrack?){
+         
+         if let track {
+             videoView.track = track
+             videoView.isHidden = false
+             profileView.isHidden = true
+         }else{
+             videoView.isHidden = true
+             profileView.isHidden = false
+             profileView.profileImageView.setImage(urlString: "")
+             self.layoutIfNeeded()
+         }
+     }
+     
+     override func layoutSubviews() {
+         super.layoutSubviews()
+         videoView.frame = self.bounds
+         self.profileView.frame = self.bounds
+         videoView.setNeedsLayout()
+     }
+ }
 
 
 

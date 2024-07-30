@@ -9,19 +9,7 @@ import Foundation
 import UIKit
 import LiveKit
 
-class ISMLiveCallCollectionView: UICollectionView {
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        // Update cell frames here
-        for indexPath in indexPathsForVisibleItems {
-            if let cell = cellForItem(at: indexPath) as? ISMLiveCallCollectionViewCell {
-                let updatedFrame = CGRect(x: cell.frame.origin.x, y: cell.frame.origin.y, width: cell.frame.size.width, height: cell.frame.size.height)
-                cell.frame = updatedFrame
-                cell.videoView.frame = updatedFrame
-            }
-        }
-    }
-}
+
 
 extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     /* Implement required methods for UICollectionViewDataSource and UICollectionViewDelegateFlowLayout*/
@@ -47,28 +35,40 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
                 
             }
         }
-        
-        
+      
         if callType == .AudioCall{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMAudioCallCollectionViewCell", for: indexPath) as! ISMAudioCallCollectionViewCell
-            cell.configure(withName: ISMCallManager.shared.members?.first?.memberName ??   ISMCallManager.shared.members?.first?.memberIdentifier ?? "Unknown", profileImageUrl: ISMCallManager.shared.members?.first?.memberProfileImageURL , status: self.callStatus)
+            
+            if remoteParticipants.isEmpty{
+                let member = ISMCallManager.shared.members?.first(where: {
+                    !($0.isAdmin ?? false)
+                })
+                cell.configure(member: member , status: self.callStatus)
+            }else{
+                let participant = remoteParticipants[indexPath.row]
+                let member = ISMCallManager.shared.members?.first(where: {
+                    $0.memberId == participant.identity?.stringValue
+                })
+                cell.configure(member: member , status: self.callStatus)
+            }
             return cell
         }else{
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMLiveCallCollectionViewCell", for: indexPath) as! ISMLiveCallCollectionViewCell
+            
             let participant = remoteParticipants[indexPath.row]
+             let member = ISMCallManager.shared.members?.first(where: {
+                 $0.memberId == participant.identity?.stringValue
+            })
             cell.participant = participant
             if callType == .GroupCall{
-                cell.setDetails(name:ISMCallManager.shared.callDetails?.meetingDescription ?? "Group Call" , status: self.callStatus ?? .calling)
+                cell.setDetails(member: member , status: self.callStatus)
             }else{
-                cell.setDetails(name:ISMCallManager.shared.members?.first?.memberName ??   ISMCallManager.shared.members?.first?.memberIdentifier ?? "Unknown" , status: self.callStatus ?? .calling)
+                cell.setDetails(member:member , status: self.callStatus )
             }
             return cell
         }
-        
-        
-        
-        
+
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -112,5 +112,21 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         2
+    }
+}
+
+
+class ISMLiveCallCollectionView: UICollectionView {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // Update cell frames here
+        for indexPath in indexPathsForVisibleItems {
+            if let cell = cellForItem(at: indexPath) as? ISMLiveCallCollectionViewCell {
+                let updatedFrame = CGRect(x: cell.frame.origin.x, y: cell.frame.origin.y, width: cell.frame.size.width, height: cell.frame.size.height)
+//                cell.frame = updatedFrame
+//                cell.profileView.frame = updatedFrame
+//                cell.videoView.frame = updatedFrame
+            }
+        }
     }
 }

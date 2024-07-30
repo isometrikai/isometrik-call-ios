@@ -117,10 +117,7 @@ extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
         Task {
             do {
                 try await  self.room.localParticipant.setCamera(enabled: turnVideoOn)
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-                
+                    self.updateParticipantsLayout()
             }
         }
         if callType == .AudioCall, turnVideoOn{

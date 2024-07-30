@@ -45,9 +45,9 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public Methods
-    func configure(withName name: String, profileImageUrl: String?, status : ISMCallStatus?) {
+    func configure(member: ISMCallMember?,status: ISMCallStatus?) {
         
-        profileView.nameLabel.text = name
+        profileView.nameLabel.text = member?.memberName
         
         if status == .started{
             timer?.invalidate()
@@ -63,7 +63,7 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
             profileView.timerLabel.text =  status.rawValue
         }
         
-        profileView.profileImageView.setImage(urlString:profileImageUrl)
+        profileView.profileImageView.setImage(urlString:member?.memberProfileImageURL)
     }
     
     // MARK: - Timer
