@@ -289,6 +289,7 @@ extension ISMCallManager : CXProviderDelegate{
 #endif
             
             ISMCallManager.shared.callDetails = callDetails
+            ISMCallManager.shared.callDetails?.meetingDescription = meetingDescription
             ISMCallManager.shared.pushLiveCallView(rtcToken: rtcToken, meetingID: meetingId, callType: type,isInitiator: true)
         }
     }
