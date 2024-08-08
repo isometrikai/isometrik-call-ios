@@ -46,26 +46,44 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
                 cell.configure(member: member , status: self.callStatus)
             }else{
                 let participant = remoteParticipants[indexPath.row]
-                let member = ISMCallManager.shared.members?.first(where: {
+                
+                if participant.identity?.stringValue == localParticipant?.identity?.stringValue{
+                    let member = ISMCallManager.shared.members?.first(where: {
+                        !($0.isAdmin ?? false)
+                    })
+                    cell.configure(member: member , status: self.callStatus)
+                    
+                }else if let member = ISMCallManager.shared.members?.first(where: {
                     $0.memberId == participant.identity?.stringValue
-                })
-                cell.configure(member: member , status: self.callStatus)
+                }){
+                    cell.configure(member: member , status: self.callStatus)
+                }
             }
             return cell
         }else{
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMLiveCallCollectionViewCell", for: indexPath) as! ISMLiveCallCollectionViewCell
-            
-            let participant = remoteParticipants[indexPath.row]
-             let member = ISMCallManager.shared.members?.first(where: {
-                 $0.memberId == participant.identity?.stringValue
-            })
+        
+                 let participant = remoteParticipants[indexPath.row]
+                
+                if participant.identity?.stringValue == localParticipant?.identity?.stringValue{
+                    let member = ISMCallManager.shared.members?.first(where: {
+                        !($0.isAdmin ?? false)
+                    })
+                    if callType == .GroupCall{
+                        cell.showGroupCalling(groupName: ISMCallManager.shared.callDetails?.meetingDescription , status: self.callStatus)
+                    }else{
+                        cell.setDetails(member: member , status: self.callStatus)
+                    }
+                    
+                }else if let member = ISMCallManager.shared.members?.first(where: {
+                    $0.memberId == participant.identity?.stringValue
+                }){
+                    cell.setDetails(member: member , status: self.callStatus)
+                }
             cell.participant = participant
-            if callType == .GroupCall{
-                cell.setDetails(member: member , status: self.callStatus)
-            }else{
-                cell.setDetails(member:member , status: self.callStatus )
-            }
+            
+        
             return cell
         }
 

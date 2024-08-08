@@ -13,7 +13,7 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
     
     let profileView = ProfileView()
     public let callStatus = UILabel()
-    public let name =  UILabel()
+    public var name =  UILabel()
     public static var instanceCounter: Int = 0
     public let cellId: Int
     
@@ -153,9 +153,19 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
         self.addSubview(profileView)
     }
     func setDetails(member: ISMCallMember?,status: ISMCallStatus?){
+       
         profileView.nameLabel.text = member?.memberName
         profileView.profileImageView.setImage(urlString:member?.memberProfileImageURL)
         
+        self.callStatus.isHidden = status == .started
+        self.callStatus.text = status?.rawValue
+        self.name.text = member?.memberName
+        self.hideDetails = status == .started
+    }
+    
+    func showGroupCalling(groupName:String?,status: ISMCallStatus? ){
+        self.name.text = groupName
+        profileView.nameLabel.text = groupName
         self.callStatus.isHidden = status == .started
         self.callStatus.text = status?.rawValue
         self.hideDetails = status == .started
