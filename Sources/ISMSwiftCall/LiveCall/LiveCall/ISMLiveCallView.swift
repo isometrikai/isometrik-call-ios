@@ -591,10 +591,14 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             }
             
             
-            if self.floatingVideoView() == nil{
+            if !remotePaticipants.isEmpty{
+                print("**Added Floating view as calltype:\(self.callType) and remote memebrs count \(remotePaticipants.count)")
+                
+                self.floatingVideoView()?.removeFromSuperview()
                 self.addFloatingVideoView()
+                self.updateFloatingViewTracks(remoteVideoTrack: remotePaticipants.first?.mainVideoTrack)
             }
-            self.updateFloatingViewTracks(remoteVideoTrack: remotePaticipants.first?.mainVideoTrack)
+      
         }
     }
     
