@@ -123,9 +123,9 @@ class ISMLiveCallCollectionView: UICollectionView {
         for indexPath in indexPathsForVisibleItems {
             if let cell = cellForItem(at: indexPath) as? ISMLiveCallCollectionViewCell {
                 let updatedFrame = CGRect(x: cell.frame.origin.x, y: cell.frame.origin.y, width: cell.frame.size.width, height: cell.frame.size.height)
-//                cell.frame = updatedFrame
-//                cell.profileView.frame = updatedFrame
-//                cell.videoView.frame = updatedFrame
+                cell.frame = updatedFrame
+                cell.profileView.frame = updatedFrame
+                cell.videoView.frame = updatedFrame
             }
         }
     }
