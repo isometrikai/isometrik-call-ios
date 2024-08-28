@@ -19,7 +19,7 @@ extension ISMLiveCallView : RoomDelegate{
     }
     
     func room(_ room: Room, participant: Participant, didUpdatePermissions permissions: ParticipantPermissions) {
-        
+
     }
     
     func room(_ room: Room, participant: RemoteParticipant, didPublishTrack publication: RemoteTrackPublication) {
@@ -29,7 +29,7 @@ extension ISMLiveCallView : RoomDelegate{
         
     }
     func room(_ room: Room, participant: Participant, trackPublication publication: TrackPublication, didUpdateIsMuted muted: Bool) {
-        
+        self.updateParticipantsLayout()
     }
     
     
@@ -42,22 +42,46 @@ extension ISMLiveCallView : RoomDelegate{
     }
     
     func room(_ room: Room, didUpdateConnectionState connectionState: ConnectionState, from oldValue: ConnectionState) {
-        if connectionState == .connected{
+        print("**************NEW STATE : \(connectionState.rawValue), OLD STATE : \(oldValue.rawValue)****")
+        switch connectionState {
+        case .connected:
             
-            // On background to foreground sometime camera freez, to update it switch camera status
-            if oldValue == .connecting, self.callType == .VideoCall{
-                self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateCameraStatus), userInfo: nil, repeats: true)
+            if callStatus == .reconnecting {
+                
+                if oldValue == .connecting{
+                    callStatus = .started
+                    self.updateParticipantsLayout()
+                }
+                return
             }
-            
-            if oldValue == .reconnecting{
-                self.localParticipant = self.room.localParticipant
-                DispatchQueue.main.async {
-                    if self.callType == .VideoCall{
-                        self.shouldUpdateCameraStatus = true
+                
+                // On background to foreground sometime camera freez, to update it switch camera status
+                if oldValue == .connecting, self.callType == .VideoCall{
+                    self.timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateCameraStatus), userInfo: nil, repeats: true)
+                }
+                
+                if oldValue == .reconnecting{
+                    self.localParticipant = self.room.localParticipant
+                    DispatchQueue.main.async {
+                        if self.callType == .VideoCall{
+                            self.shouldUpdateCameraStatus = true
+                        }
+                    }
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
                     }
                 }
+            callStatus = .started
+        case .reconnecting :
+            callStatus = .reconnecting
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
             }
+        default:
+           break
         }
+      
+      
     }
     
     func room(_ room: Room, participantDidConnect participant: RemoteParticipant) {
@@ -83,7 +107,7 @@ extension ISMLiveCallView : RoomDelegate{
     }
     
     func room(_ room: Room, participantDidDisconnect participant: RemoteParticipant) {
-        
+
         self.participantUpdated(participant: participant)
         
         switch callType{

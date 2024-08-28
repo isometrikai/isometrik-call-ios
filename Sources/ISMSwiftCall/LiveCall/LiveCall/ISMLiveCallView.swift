@@ -70,6 +70,9 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         
     }
     func didTapRightBarButton() {
+        guard usersListView.isHidden else{
+            return
+        }
         presentUsersListView()
     }
     
@@ -77,7 +80,9 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     func showNoAnswerView() {
         self.stopAudio()
         self.clearScreen()
-        noAnswerView.setCallStatus(text: "\(ISMCallManager.shared.members?.first?.memberName ??   ISMCallManager.shared.members?.first?.memberIdentifier ?? "Unknown")")
+        
+        noAnswerView.setCallStatus(text: callType == .GroupCall ? "\(ISMCallManager.shared.callDetails?.meetingDescription ?? "Group Call")" : "\(ISMCallManager.shared.members?.first?.memberName ??   ISMCallManager.shared.members?.first?.memberIdentifier ?? "Unknown")")
+        
         noAnswerView.isHidden = false
         self.bringSubviewToFront(noAnswerView)
         
@@ -414,6 +419,12 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     
     func maximiseTheView(){
+        // Dismiss the Group Users List View if it is open on tap.
+        guard usersListView.isHidden else{
+            self.dismissUsersListView()
+            return
+        }
+        
         self.dismissEditing()
         guard isMinimised ?? false, let window = UIApplication.shared.connectedScenes
             .filter({$0.activationState == .foregroundActive})
@@ -596,24 +607,26 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
                 
                 self.floatingVideoView()?.removeFromSuperview()
                 self.addFloatingVideoView()
-                self.updateFloatingViewTracks(remoteVideoTrack: remotePaticipants.first?.mainVideoTrack)
+                self.updateFloatingViewTracks(participant: remotePaticipants.first)
             }
       
         }
     }
     
-    func updateFloatingViewTracks(remoteVideoTrack:VideoTrack?){
+    func updateFloatingViewTracks(participant:Participant?){
         if self.keepLocalAsFocusParticipant{
-            self.floatingVideoView()?.setVideoTracks(track: remoteVideoTrack)
+            let memberName = getMemberName(participant:participant )
+      self.floatingVideoView()?.setVideoTracks(track: participant?.mainVideoTrack, memberName: memberName)
         }else{
-            self.floatingVideoView()?.setVideoTracks(track:self.room.localParticipant.mainVideoTrack)
+            let memberName = getMemberName(participant:room.localParticipant )
+            self.floatingVideoView()?.setVideoTracks(track:self.room.localParticipant.mainVideoTrack, memberName: memberName)
         }
     }
     
     func addFloatingVideoView(){
         let floatingVideoView = FloatingView()
         floatingVideoView.videoView.layoutMode = .fill
-        floatingVideoView.layer.cornerRadius = 3
+        floatingVideoView.layer.cornerRadius = 5
         floatingVideoView.clipsToBounds = true
         floatingVideoView.backgroundColor = .black
         floatingVideoView.translatesAutoresizingMaskIntoConstraints = false
@@ -638,45 +651,52 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         } as? FloatingView
     }
     
+    func getMemberName(participant : Participant?) -> String?{
+        if let member = ISMCallManager.shared.members?.first(where: {
+            $0.memberId == participant?.identity?.stringValue
+        }){
+            return member.memberName
+        }
+        return nil
+    }
+    
 }
 
 
  class FloatingView : UIView{
      let videoView = VideoView()
-     let profileView = ProfileView()
+     let profileImageView = UIImageView()
      
      override init(frame: CGRect) {
          super.init(frame: frame)
          self.addSubview(videoView)
-         self.addSubview(profileView)
-         profileView.isHidden = true
-         profileView.timerLabel.isHidden = true
-         profileView.topSpaceView.isHidden = true
- 
+         self.addSubview(profileImageView)
+         profileImageView.isHidden = true
      }
      
      required init?(coder: NSCoder) {
          fatalError("init(coder:) has not been implemented")
      }
      
-     func setVideoTracks(track : VideoTrack?){
+     func setVideoTracks(track : VideoTrack?, memberName : String?){
          
          if let track {
              videoView.track = track
              videoView.isHidden = false
-             profileView.isHidden = true
+             profileImageView.isHidden = true
          }else{
              videoView.isHidden = true
-             profileView.isHidden = false
-             profileView.profileImageView.setImage(urlString: "")
-             self.layoutIfNeeded()
+             profileImageView.isHidden = false
+             profileImageView.setImage(urlString:"",placeholderImage: CircularImagePlaceholder.createCircularInitialsPlaceholder(name: memberName ?? "Unknown", size: CGSize(width:profileImageView.bounds.width , height: profileImageView.bounds.height)))
+             self.layoutSubviews()
          }
      }
      
      override func layoutSubviews() {
          super.layoutSubviews()
          videoView.frame = self.bounds
-         self.profileView.frame = self.bounds
+         let padding: CGFloat = 20
+         profileImageView.frame = self.bounds.inset(by: UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding))
          videoView.setNeedsLayout()
      }
  }

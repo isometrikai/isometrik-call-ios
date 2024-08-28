@@ -13,4 +13,5 @@ enum ISMCallStatus : String{
     case ringing
     case started
     case hold
+    case reconnecting
 }

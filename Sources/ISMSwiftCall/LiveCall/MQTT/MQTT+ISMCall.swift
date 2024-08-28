@@ -44,9 +44,11 @@ public struct CallEventHandler {
 
         case .meetingEnded:
             //End Call for everyone
-            if let callID = ISMCallManager.shared.callIDs.first,  (ISMLiveCallView.shared.meetingId == meeting?.meetingId || ISMCallManager.shared.callDetails?.meetingId ==  meeting?.meetingId) {
+            if ISMLiveCallView.shared.meetingId == meeting?.meetingId || ISMCallManager.shared.callDetails?.meetingId ==  meeting?.meetingId{
                 ISMLiveCallView.shared.disconnectCall()
-                ISMCallManager.shared.endCall(callUUID: callID)
+                if  let callID = ISMCallManager.shared.callIDs.first{
+                    ISMCallManager.shared.endCall(callUUID: callID)
+                }
             }
             delegate?.didReceiveMeetingEnded(meeting: meeting)
         case .memberLeft :
@@ -57,6 +59,9 @@ public struct CallEventHandler {
             }
             delegate?.didReceiveJoinRequestReject(meeting: meeting)
         case .publishingStarted :
+            if let senderId =  meeting?.userId, senderId != ISMConfiguration.getUserId(), meeting?.meetingId == ISMCallManager.shared.callDetails?.meetingId{
+                ISMCallManager.shared.cancelHangupTimer()
+            }
             delegate?.publishingStarted(meeting: meeting)
         case .joinRequestAccept :
             if let senderId =  meeting?.userId, senderId != ISMConfiguration.getUserId(), ISMCallManager.shared.outgoingCallID != nil{
@@ -86,7 +91,7 @@ public struct CallEventHandler {
             }
           
         default :
-            print("")
+            print(meeting?.action ?? "")
         }
         
     }

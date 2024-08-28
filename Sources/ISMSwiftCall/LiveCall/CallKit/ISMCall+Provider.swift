@@ -265,6 +265,10 @@ extension ISMCallManager : CXProviderDelegate{
     
     
     func createCall(members : [ISMCallMember], conversationId : String? = nil, callType : ISMLiveCallType, meetingDescription : String? = nil){
+        guard canMakeAOutgoingCall() else{
+            print("There is an active call")
+            return
+        }
         
         let memberIds = members.compactMap{ $0.memberId }
         guard !memberIds.isEmpty else{
@@ -281,10 +285,11 @@ extension ISMCallManager : CXProviderDelegate{
             
 #if !targetEnvironment(simulator)
             // Code to be excluded on the simulator
-            if type != .GroupCall,members.count == 1 , let callUser = members.first {
+            if type == .GroupCall {
+                self.reportOutgoingCall(handleName: meetingDescription ?? "Group Call" ,token: rtcToken,meetingId: meetingId, videoEnabled: true)
+            }else if members.count == 1 , let callUser = members.first {
                 self.reportOutgoingCall(handleName: callUser.memberName ?? callUser.memberIdentifier ?? "",token: rtcToken,meetingId: meetingId, videoEnabled: type == .VideoCall)
-            }else if let meetingDescription, !meetingDescription.isEmpty{
-                self.reportOutgoingCall(handleName: meetingDescription ,token: rtcToken,meetingId: meetingId, videoEnabled: true)
+             
             }
 #endif
             

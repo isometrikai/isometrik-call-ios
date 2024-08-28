@@ -100,10 +100,19 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
             profileView.isHidden = true
             self.bringSubviewToFront(videoView)
         }else{
-            videoView.isHidden = true
             profileView.isHidden = false
+ 
+            var memberName : String = "Unknown"
+                if let member = ISMCallManager.shared.members?.first(where: {
+                    $0.memberId == participant?.identity?.stringValue
+                }){
+                    memberName = member.memberName ?? "Unknown"
+                }
+            
+            profileView.profileImageView.setImage(urlString:"",placeholderImage: CircularImagePlaceholder.createCircularInitialsPlaceholder(name:  memberName, size: CGSize(width:profileView.profileImageView.bounds.width , height: profileView.profileImageView.bounds.height)))
             self.bringSubviewToFront(profileView)
         }
+        self.layoutSubviews()
     }
     
     override init(frame: CGRect) {
@@ -154,7 +163,11 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
     }
     func setDetails(member: ISMCallMember?,status: ISMCallStatus?){
         self.callStatus.isHidden = status == .started
-        self.callStatus.text = status?.rawValue
+        if status == .reconnecting{
+            self.callStatus.text =  "Reconnecting..."
+        }else{
+            self.callStatus.text = status?.rawValue
+        }
         self.name.text = member?.memberName
         self.hideDetails = status == .started
     }

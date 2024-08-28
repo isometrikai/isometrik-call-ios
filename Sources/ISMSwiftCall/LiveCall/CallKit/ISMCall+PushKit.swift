@@ -101,7 +101,7 @@ public extension ISMCallManager{
             
         } catch {
             let update = CXCallUpdate()
-            update.remoteHandle = CXHandle(type: .generic, value: "UNKOWN")
+            update.remoteHandle = CXHandle(type: .generic, value: "Unknown")
             
             provider.reportNewIncomingCall(with:UUID(), update: update) { error in
                 print("Error decoding push payload: \(String(describing: error))")

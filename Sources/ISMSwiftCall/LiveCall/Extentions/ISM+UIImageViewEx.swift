@@ -11,8 +11,15 @@ import UIKit
 
 extension UIImageView : AppearanceProvider{
     
-    func setImage(urlString: String?){
-        let image = appearance.images.profileAvatar
+    func setImage(urlString: String?,placeholderImage : UIImage? = nil){
+        
+        var image : UIImage
+        
+        if let placeholderImage{
+            image = placeholderImage
+        }else{
+            image = appearance.images.profileAvatar
+        }
         guard let urlString ,let url = URL(string: urlString) else{
             self.image = image
             return
@@ -22,3 +29,4 @@ extension UIImageView : AppearanceProvider{
     }
     
 }
+

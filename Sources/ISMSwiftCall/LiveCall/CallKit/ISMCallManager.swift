@@ -101,11 +101,6 @@ public class ISMCallManager: NSObject {
     
     func reportOutgoingCall(handleName: String,token:String, meetingId : String,videoEnabled : Bool) {
         
-        guard canMakeAOutgoingCall() else{
-            return
-        }
-        
-        
         let handle = CXHandle(type: .generic, value: handleName)
         
         provider.setDelegate(self, queue: nil)
@@ -133,12 +128,18 @@ public class ISMCallManager: NSObject {
     
     // Start the call outgoing call if it is accepted on other end
     func startTheCall(){
+        
+        guard let outgoingCallID else{
+            return
+        }
         // add -2 to assume call is connected early to sync the time on incoming side.
+        
         callConnectedTime = Date().addingTimeInterval(-2)
         self.cancelHangupTimer()
         self.outgoingCallID = nil // clear the outgoingCallId to avoid the hangup case of no answer
         self.provider.reportOutgoingCall(with: ISMCallManager.shared.callIDs.first!, connectedAt: callConnectedTime)
     }
+    
     
     /// To report a call without the Pushkit.
     func reportIncomingCall(callDetails : ISMMeeting){
@@ -188,6 +189,24 @@ public class ISMCallManager: NSObject {
         else if let callUUID = self.callIDs.first {
             self.endCall(callUUID:callUUID)
             self.rejectCall()
+        }
+    }
+    
+    func joinCall(callDetails : ISMMeeting?){
+        if let id = self.callDetails?.meetingId{
+            self.callConnectedTime = Date()
+            self.cancelHangupTimer()
+            self.callActiveOnDeviceId = ISMDeviceId
+            self.viewModel.accpetCall(meetingId: id) { response in
+                guard let rtcToken = response.rtcToken else{
+                    self.endCall(callUUID:self.callIDs.first ?? UUID())
+                    return
+                }
+                self.pushLiveCallView(rtcToken: rtcToken, meetingID: id, callType: self.callDetails?.callType() ?? .AudioCall)
+            }failure: {
+                // If meeting is already Ended
+                //  self.endCall(callUUID:self.callIDs.first ?? UUID())
+            }
         }
     }
 }

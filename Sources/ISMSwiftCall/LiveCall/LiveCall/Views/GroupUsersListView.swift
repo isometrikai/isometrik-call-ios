@@ -54,6 +54,7 @@ class GroupUsersListView: UIView, UITableViewDelegate, UITableViewDataSource {
         super.init(frame: frame)
         setupUI()
         setupAppearance()
+        self.isHidden = true
     }
     
     required init?(coder: NSCoder) {
@@ -63,29 +64,37 @@ class GroupUsersListView: UIView, UITableViewDelegate, UITableViewDataSource {
     private func setupUI() {
         self.backgroundColor = .black
         self.usersTableView.backgroundColor = .black
-        dismissButton.setImage(Appearance().images.minimize, for: .normal)
-        dismissButton.setTitleColor(.blue, for: .normal)
+
+        dismissButton.backgroundColor = .gray
+        dismissButton.layer.cornerRadius = 0.5
         dismissButton.addTarget(self, action: #selector(dismissButtonTapped), for: .touchUpInside)
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         addSubview(dismissButton)
         
         NSLayoutConstraint.activate([
             dismissButton.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            dismissButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15)
+            dismissButton.widthAnchor.constraint(equalToConstant: 50),
+            dismissButton.heightAnchor.constraint(equalToConstant: 2),
+            dismissButton.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
         
         usersTableView.delegate = self
         usersTableView.dataSource = self
+        usersTableView.separatorStyle = .none
         usersTableView.register(GroupUserTableViewCell.self, forCellReuseIdentifier: "GroupUserTableViewCell")
         usersTableView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(usersTableView)
         
         NSLayoutConstraint.activate([
-            usersTableView.topAnchor.constraint(equalTo: dismissButton.bottomAnchor,constant: 8),
+            usersTableView.topAnchor.constraint(equalTo: dismissButton.bottomAnchor,constant: 5),
             usersTableView.leadingAnchor.constraint(equalTo: leadingAnchor,constant: 20),
             usersTableView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             usersTableView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+        
+        // Add Pan Gesture Recognizer
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        self.addGestureRecognizer(panGesture)
     }
     
     
@@ -178,6 +187,44 @@ class GroupUsersListView: UIView, UITableViewDelegate, UITableViewDataSource {
         cell.configure(with: user)
         return cell
     }
+    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        guard let superview = self.superview else { return }
+        
+        let translation = gesture.translation(in: superview)
+        let velocity = gesture.velocity(in: superview)
+        
+        switch gesture.state {
+        case .changed:
+            // Move the view with the pan gesture
+            // Only allow downward movement
+            if translation.y > 0 {
+                self.center = CGPoint(x: self.center.x, y: self.center.y + translation.y)
+                gesture.setTranslation(.zero, in: superview)
+            }
+            
+            
+            
+        case .ended:
+            // If the swipe is fast enough or the view is moved a certain distance, dismiss the view
+            if velocity.y > 500 || self.frame.origin.y > superview.frame.size.height / 2 {
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.frame.origin.y = superview.frame.size.height
+                }, completion: { _ in
+                    (superview as? ISMLiveCallView)?.dismissUsersListView()
+                })
+            } else{
+                // Otherwise, snap the view back to its original position
+                UIView.animate(withDuration: 0.3, animations: {
+                    let yPosition = superview.bounds.height - self.bounds.height
+                    self.frame.origin.y = yPosition // or any initial Y position you desire
+                })
+            }
+            
+        default:
+            break
+        }
+    }
 }
 
 class GroupUserTableViewCell: UITableViewCell {
@@ -195,6 +242,7 @@ class GroupUserTableViewCell: UITableViewCell {
     }
     
     private func setupUI() {
+        self.backgroundView?.backgroundColor = .clear
         contentView.layer.masksToBounds = true
         contentView.backgroundColor = .lightGray
         containerView.backgroundColor = .darkGray
@@ -244,6 +292,7 @@ class GroupUserTableViewCell: UITableViewCell {
     
     func configure(with member: ISMCallMember) {
         userImageView.setImage(urlString: member.userProfileImageURL ?? member.memberProfileImageURL )
+        
         userNameLabel.text =  member.userName ?? member.memberName
     }
 }
