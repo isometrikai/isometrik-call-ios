@@ -131,6 +131,11 @@ class ProfileView: UIView {
         nameLabel.textColor = .white
         timerLabel.textColor = .white
         
+        profileImageView.layer.cornerRadius = 50
+        profileImageView.clipsToBounds = true
+        profileImageView.layer.borderWidth = 2.0
+        profileImageView.layer.borderColor = UIColor.white.cgColor
+        
         profileImageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
         profileImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
         

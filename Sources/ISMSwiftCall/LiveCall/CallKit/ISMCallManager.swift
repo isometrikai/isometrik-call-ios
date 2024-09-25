@@ -171,6 +171,7 @@ public class ISMCallManager: NSObject {
     /// hangup if  call is not connected within timeInterval seconds
     func scheduleCallHangup() {
 #if !targetEnvironment(simulator)
+        callHangupTimer?.cancel()
         callHangupTimer = ISMCallHangupTimer(timeInterval: 60.0, hangupHandler: hangupCall)
         callHangupTimer?.start()
 #endif
@@ -183,7 +184,7 @@ public class ISMCallManager: NSObject {
     func hangupCall() {
         print("Call is being hung up due to no answer.")
         //Outgoing call
-        if let callUUID = self.outgoingCallID {
+        if let callUUID = self.outgoingCallID, self.callDetails?.meetingId == ISMLiveCallView.shared.meetingId {
             ISMLiveCallView.shared.showNoAnswerView()
         }//Incoming call
         else if let callUUID = self.callIDs.first {
