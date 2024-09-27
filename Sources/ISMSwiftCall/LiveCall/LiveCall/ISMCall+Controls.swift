@@ -50,12 +50,12 @@ extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
             turnOffSpeaker()
         }
         
-//        Task {
-//            do {
-//               // AudioManager.shared.isSpeakerOutputPreferred = isSpeakerOn
-//
-//            }
-//        }
+        Task {
+            do {
+                AudioManager.shared.isSpeakerOutputPreferred = isSpeakerOn
+
+            }
+        }
         
         updateSpeakerStatus()
     }

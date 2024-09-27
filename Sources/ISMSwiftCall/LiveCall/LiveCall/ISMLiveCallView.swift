@@ -173,7 +173,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         if self.callType == .AudioCall{
             Task {
                 do {
-                    // AudioManager.shared.isSpeakerOutputPreferred = false
+                     AudioManager.shared.isSpeakerOutputPreferred = false
                 }
             }
         }
