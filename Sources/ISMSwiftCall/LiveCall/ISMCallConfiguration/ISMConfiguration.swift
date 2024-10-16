@@ -269,8 +269,6 @@ import Foundation
     }
     
 static func videoCallOptionEnabled() -> Bool {
-        return  true
+     return  true
     }
-
-
 }

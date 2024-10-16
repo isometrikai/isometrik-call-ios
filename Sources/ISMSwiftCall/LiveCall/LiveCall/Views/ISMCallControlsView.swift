@@ -27,6 +27,7 @@ class ISMExpandableCallControlsView: UIView , AppearanceProvider{
     let speaker = UIButton()
     let switchCamera = UIButton()
     let requestTitle = UILabel()
+    var statckView  = UIStackView()
     
     lazy var enableVideoButton : UIButton = {
         let video = UIButton()
@@ -120,13 +121,9 @@ class ISMExpandableCallControlsView: UIView , AppearanceProvider{
         switchCamera.isOpaque = true
         switchCamera.addTarget(self, action: #selector(switchCamera(sender: )), for: .touchUpInside)
         switchCamera.isSelected = true
+        switchCamera.isHidden = true
         
-        let statckView  = UIStackView(arrangedSubviews: [endCall, muteButton, speaker])
-        
-        if ISMConfiguration.videoCallOptionEnabled(){
-            statckView.addArrangedSubview(enableVideoButton)
-            statckView.addArrangedSubview(switchCamera)
-        }
+        statckView  = UIStackView(arrangedSubviews: [endCall, muteButton, speaker, enableVideoButton,switchCamera])
         statckView.axis = .horizontal
         statckView.distribution = .fillEqually
         statckView.spacing = 15
@@ -185,6 +182,10 @@ class ISMExpandableCallControlsView: UIView , AppearanceProvider{
 //        arrowImageView.addGestureRecognizer(tapGesture)
 //        arrowImageView.isUserInteractionEnabled = true
         
+    }
+    
+    func shouldHideSwitchCameraOption(hide:Bool){
+        switchCamera.isHidden = hide
     }
     
     func updateVideoEnabledStatus(isEnabled :Bool){

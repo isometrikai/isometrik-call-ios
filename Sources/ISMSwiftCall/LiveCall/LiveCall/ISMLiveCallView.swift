@@ -255,7 +255,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     }
     
     
-    private let expandableView: ISMExpandableCallControlsView = {
+    let expandableView: ISMExpandableCallControlsView = {
         let view = ISMExpandableCallControlsView()
         return view
     }()
@@ -514,6 +514,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             expandableView.configureView()
             expandableView.expandableDelegate = self
             expandableView.updateVideoEnabledStatus(isEnabled: callType != .AudioCall)
+            expandableView.shouldHideSwitchCameraOption(hide: callType == .AudioCall )
             addSubview(expandableView)
         }
     }
@@ -560,6 +561,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     }
     
     func switchToVideoCallrequestAccepted(){
+        expandableView.shouldHideSwitchCameraOption(hide: false)
         self.expandableView.switchToVideoCallrequestAccepted()
         
         Task {

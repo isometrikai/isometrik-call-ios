@@ -66,6 +66,7 @@ extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
     }
     
     func didTapAcceptVideoCallRequest() {
+        expandableView.shouldHideSwitchCameraOption(hide: false)
         Task {
             do {
                 try await  self.room.localParticipant.setCamera(enabled: true)
@@ -117,12 +118,15 @@ extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
         Task {
             do {
                 try await  self.room.localParticipant.setCamera(enabled: turnVideoOn)
-                    self.updateParticipantsLayout()
+                self.callType = .VideoCall
+                self.expandableView.shouldHideSwitchCameraOption(hide: !turnVideoOn)
+                self.updateParticipantsLayout()
             }
         }
-        if callType == .AudioCall, turnVideoOn{
-            requestToSwitchToVideoCall()
-        }
+//        if callType == .AudioCall, turnVideoOn{
+//            requestToSwitchToVideoCall()
+//        }
+
     }
     
 }
