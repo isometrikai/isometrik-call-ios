@@ -42,14 +42,12 @@ extension ISMLiveCallView : RoomDelegate{
     }
     
     func room(_ room: Room, didUpdateConnectionState connectionState: ConnectionState, from oldValue: ConnectionState) {
-        print("**************NEW STATE : \(connectionState.rawValue), OLD STATE : \(oldValue.rawValue)****")
         switch connectionState {
         case .connected:
             
             if callStatus == .reconnecting {
                 
                 if oldValue == .connecting{
-                    callStatus = .started
                     self.updateParticipantsLayout()
                 }
                 return
@@ -71,9 +69,7 @@ extension ISMLiveCallView : RoomDelegate{
                         self.collectionView.reloadData()
                     }
                 }
-            callStatus = .started
         case .reconnecting :
-            callStatus = .reconnecting
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
             }

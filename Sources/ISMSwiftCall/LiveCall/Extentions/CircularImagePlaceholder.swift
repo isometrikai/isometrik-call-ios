@@ -23,7 +23,7 @@ class CircularImagePlaceholder{
         label.frame.size = placeholderSize
         label.text = initials
         label.textAlignment = .center
-        label.backgroundColor = randomColor() // Use random color
+        label.backgroundColor = .gray // Use random color
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: placeholderSize.width / 2)
         label.layer.cornerRadius = placeholderSize.width / 2

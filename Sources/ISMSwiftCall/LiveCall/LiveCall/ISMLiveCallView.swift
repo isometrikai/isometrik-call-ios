@@ -603,8 +603,6 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             
             
             if !remotePaticipants.isEmpty{
-                print("**Added Floating view as calltype:\(self.callType) and remote memebrs count \(remotePaticipants.count)")
-                
                 self.floatingVideoView()?.removeFromSuperview()
                 self.addFloatingVideoView()
                 self.updateFloatingViewTracks(participant: remotePaticipants.first)

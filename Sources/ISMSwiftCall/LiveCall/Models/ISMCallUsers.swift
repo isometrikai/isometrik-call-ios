@@ -66,7 +66,7 @@ public struct ISMCallMember: Codable, Hashable {
           case memberId = "memberId"
           case userIdentifier, isHost, isPublishing, accepted,memberIdentifier
           case userProfileImageURL = "userProfileImageUrl"
-          case memberProfileImageURL = "memberProfileImageURL"
+          case memberProfileImageURL = "memberProfileImageUrl"
           case deviceID = "deviceId"
           case metaData, online, lastSeen, isAdmin, joinTime
       }

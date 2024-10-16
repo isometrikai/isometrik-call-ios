@@ -125,12 +125,12 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
         
         name.text = ""
         name.textColor = .white
-        name.font = .boldSystemFont(ofSize: 30)
+        name.font = .boldSystemFont(ofSize: 40)
         name.textAlignment = .center
         
         callStatus.text = ""
         callStatus.textColor = .white
-        name.font = .systemFont(ofSize: 20)
+        name.font = .boldSystemFont(ofSize: 20)
         callStatus.textAlignment = .center
         
         userDetailsStackView.addArrangedSubview(name)
@@ -162,7 +162,6 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
         self.addSubview(profileView)
     }
     func setDetails(member: ISMCallMember?,status: ISMCallStatus?){
-        self.callStatus.isHidden = status == .started
         if status == .reconnecting{
             self.callStatus.text =  "Reconnecting..."
         }else{
@@ -170,6 +169,8 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
         }
         self.name.text = member?.memberName
         self.hideDetails = status == .started
+        self.bringSubviewToFront(self.userDetailsStackView)
+
     }
     
     func showGroupCalling(groupName:String?,status: ISMCallStatus? ){

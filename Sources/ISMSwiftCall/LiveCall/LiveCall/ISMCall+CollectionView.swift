@@ -41,15 +41,16 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
             
             if remoteParticipants.isEmpty{
                 let member = ISMCallManager.shared.members?.first(where: {
-                    !($0.isAdmin ?? false)
+                   return  ISMConfiguration.getUserId() != $0.memberId
                 })
+                
                 cell.configure(member: member , status: self.callStatus)
             }else{
                 let participant = remoteParticipants[indexPath.row]
                 
                 if participant.identity?.stringValue == localParticipant?.identity?.stringValue{
                     let member = ISMCallManager.shared.members?.first(where: {
-                        !($0.isAdmin ?? false)
+                        return  ISMConfiguration.getUserId() != $0.memberId
                     })
                     cell.configure(member: member , status: self.callStatus)
                     

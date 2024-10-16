@@ -51,7 +51,6 @@ public extension ISMCallManager{
             let data = try JSONSerialization.data(withJSONObject: payload.dictionaryPayload, options: [])
             
             let pushPayload = try JSONDecoder().decode(ISMMeeting.self, from: data)
-            print("***\(pushPayload)***")
             
             let callDetails = pushPayload
             

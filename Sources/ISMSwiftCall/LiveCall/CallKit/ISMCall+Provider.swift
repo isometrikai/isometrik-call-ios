@@ -168,8 +168,6 @@ extension ISMCallManager : CXProviderDelegate{
     }
     
     public func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
-        
-        print("***** CALL ID IN CXStartCallAction \(action.callUUID)")
         // Get call object
         // Configure audio session
         // Add call to ISMCallManager.callIDs
