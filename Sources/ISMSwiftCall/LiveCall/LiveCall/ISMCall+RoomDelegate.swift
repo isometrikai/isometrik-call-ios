@@ -128,6 +128,7 @@ extension ISMLiveCallView : RoomDelegate{
     }
     
     func room(_ room: Room, participant: RemoteParticipant, didSubscribeTrack publication: RemoteTrackPublication) {
+        updateHeaderStatus()
         switch self.callType{
         case .AudioCall :
             self.callStatus = .started

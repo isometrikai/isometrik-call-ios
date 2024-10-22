@@ -29,6 +29,10 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     private let usersListView = GroupUsersListView()
     private let noAnswerView = NoAnswerView()
     
+    var startTime : Date?
+    var seconds: Int = 0
+    
+    
     //Padding for floatingview bounds
     let padding = 10.0
     
@@ -164,6 +168,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
         if let customNavBar{
             customNavBar.delegate = self
             customNavBar.titleLabel.text = "End-to-End-Encrypted"
+            updateHeaderStatus()
             insertSubview(customNavBar, aboveSubview: collectionView)
         }
         self.addCallControls()
@@ -183,6 +188,69 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     }
     
 
+    func updateHeaderStatus() {
+        // Get the member whose memberId is not equal to the current userId
+        guard let member = ISMCallManager.shared.members?.first(where: {
+            ISMConfiguration.getUserId() != $0.memberId
+        }) else { return }
+        
+      
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Update the title label with the member's name
+            if callType == .GroupCall{
+                self.customNavBar?.titleLabel.text = ISMCallManager.shared.callDetails?.meetingDescription
+            }else{
+                self.customNavBar?.titleLabel.text = member.memberName
+            }
+            
+            // Handle call status
+            switch self.callStatus {
+            case .started:
+                // Invalidate the timer if call has started
+                self.timer?.invalidate()
+                
+                // Check if callConnectedTime is available
+                if let connectedTime = ISMCallManager.shared.callConnectedTime {
+                    self.startTime = connectedTime
+                    self.startTimer()  // Start the timer
+                } else {
+                    // Show connecting text if callConnectedTime is not available
+                    self.customNavBar?.subtitleLabel.text = ISMCallConstants.connectingText
+                }
+                
+            case let status?:
+                // Update the subtitle label with the current call status
+                self.customNavBar?.subtitleLabel.text = status.rawValue
+                
+            default:
+                break
+            }
+        }
+    }
+
+    
+    // MARK: - Timer
+    private func startTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.updateAppTimer()
+        }
+    }
+    func updateAppTimer() {
+        guard let startTime = startTime else {
+            // Call has not started yet, do nothing
+            return
+        }
+        
+        let elapsedTime = Date().timeIntervalSince(startTime)
+        // Update your app's timer display with the elapsed time
+        let minutes = Int(elapsedTime / 60)
+        let seconds = Int(elapsedTime) % 60
+        customNavBar?.subtitleLabel.text  = String(format: "%02d:%02d", minutes, seconds)
+    }
+    
     
     private init( frame : CGRect, rtcToken: String, meetingId : String? = nil, callType : ISMLiveCallType?) {
         self.rtcToken = rtcToken
@@ -222,6 +290,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     }
     
     deinit {
+        timer?.invalidate()
         UIApplication.shared.isIdleTimerDisabled = false
     }
     
@@ -550,6 +619,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     func updateCallStatus(_ callStatus : ISMCallStatus){
         self.callStatus = callStatus
         self.updateParticipantsLayout()
+        updateHeaderStatus()
     }
     
     func showTheVideoCallRequest(meeting : ISMMeeting){
@@ -604,7 +674,7 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             }
             
             
-            if !remotePaticipants.isEmpty{
+            if !remotePaticipants.isEmpty, self.callStatus == .started{
                 self.floatingVideoView()?.removeFromSuperview()
                 self.addFloatingVideoView()
                 self.updateFloatingViewTracks(participant: remotePaticipants.first)

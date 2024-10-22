@@ -66,24 +66,9 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMLiveCallCollectionViewCell", for: indexPath) as! ISMLiveCallCollectionViewCell
         
                  let participant = remoteParticipants[indexPath.row]
-                
-                if participant.identity?.stringValue == localParticipant?.identity?.stringValue{
-                    let member = ISMCallManager.shared.members?.first(where: {
-                        !($0.isAdmin ?? false)
-                    })
-                    if callType == .GroupCall{
-                        cell.showGroupCalling(groupName: ISMCallManager.shared.callDetails?.meetingDescription , status: self.callStatus)
-                    }else{
-                        cell.setDetails(member: member , status: self.callStatus)
-                    }
-                    
-                }else if let member = ISMCallManager.shared.members?.first(where: {
-                    $0.memberId == participant.identity?.stringValue
-                }){
-                    cell.setDetails(member: member , status: self.callStatus)
-                }
-            cell.participant = participant
-            
+
+               cell.status = self.callStatus
+               cell.participant = participant
         
             return cell
         }

@@ -19,9 +19,19 @@ class ISMCustomNavigationBar: UIView,AppearanceProvider {
     
     var delegate : ISMCustomNavigationBarDelegate?
     
+    var view = UIView()
+    
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
+        label.font = UIFont.boldSystemFont(ofSize: 20)
+        label.textAlignment = .center
+        label.textColor = .white
+        return label
+    }()
+    
+    let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 12)
         label.textAlignment = .center
         label.textColor = .white
         return label
@@ -54,12 +64,48 @@ class ISMCustomNavigationBar: UIView,AppearanceProvider {
         addGroupMembersButton()
         hideRightBarButton = true
         // Customize the appearance of your custom navigation bar
-        backgroundColor =  .clear
-        addSubview(titleLabel)
+        // Set background to clear
+        view.backgroundColor = .clear
+
+        // Add titleLabel and subtitleLabel to the view
+        view.addSubview(titleLabel)
+        view.addSubview(subtitleLabel)
+        addSubview(view)
+
+        // Disable autoresizing mask
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.leadingAnchor.constraint(equalTo: backButton.trailingAnchor,constant: 10 ).isActive = true
-        titleLabel.trailingAnchor.constraint(equalTo: groupMembersButton.leadingAnchor ,constant: 10 ).isActive = true
-        titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.translatesAutoresizingMaskIntoConstraints = false
+
+        // Add constraints for titleLabel and subtitleLabel
+        NSLayoutConstraint.activate([
+            // Title label constraints
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            
+            // Title label should be above subtitle label
+            titleLabel.bottomAnchor.constraint(equalTo: subtitleLabel.topAnchor, constant: 0),
+            
+            // Subtitle label constraints
+            subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            subtitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            subtitleLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // Center the subtitle below the title
+            subtitleLabel.centerXAnchor.constraint(equalTo: titleLabel.centerXAnchor)
+        ])
+
+        // Add constraints for the view containing the labels
+        NSLayoutConstraint.activate([
+            // Position the view between backButton and groupMembersButton
+            view.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: 10),
+            view.trailingAnchor.constraint(equalTo: groupMembersButton.leadingAnchor, constant: -10),
+            
+            // Center the view vertically in the navigation bar
+            view.centerYAnchor.constraint(equalTo: centerYAnchor)
+        ])
+        
         
     }
     

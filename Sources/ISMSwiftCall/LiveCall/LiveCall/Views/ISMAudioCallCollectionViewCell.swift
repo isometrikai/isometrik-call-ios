@@ -47,23 +47,23 @@ class ISMAudioCallCollectionViewCell: UICollectionViewCell {
     // MARK: - Public Methods
     func configure(member: ISMCallMember?,status: ISMCallStatus?) {
         
-        profileView.nameLabel.text = member?.memberName
-        if status == .reconnecting{
-            profileView.timerLabel.text = "Reconnecting..."
-        }
-        else if status == .started{
-            timer?.invalidate()
-            if let time = ISMCallManager.shared.callConnectedTime{
-                self.startTime = time
-                startTimer()
-            }else{
-                profileView.timerLabel.text = ISMCallConstants.connectingText
-            }
-          
-        }else if let status
-        {
-            profileView.timerLabel.text =  status.rawValue
-        }
+//        profileView.nameLabel.text = member?.memberName
+//        if status == .reconnecting{
+//            profileView.timerLabel.text = "Reconnecting..."
+//        }
+//        else if status == .started{
+//            timer?.invalidate()
+//            if let time = ISMCallManager.shared.callConnectedTime{
+//                self.startTime = time
+//                startTimer()
+//            }else{
+//                profileView.timerLabel.text = ISMCallConstants.connectingText
+//            }
+//          
+//        }else if let status
+//        {
+//            profileView.timerLabel.text =  status.rawValue
+//        }
         
         
         profileView.profileImageView.setImage(urlString:member?.memberProfileImageURL,placeholderImage: CircularImagePlaceholder.createCircularInitialsPlaceholder(name: member?.memberName ?? "Unknown", size: CGSize(width:profileView.profileImageView.bounds.width , height: profileView.profileImageView.bounds.height)))

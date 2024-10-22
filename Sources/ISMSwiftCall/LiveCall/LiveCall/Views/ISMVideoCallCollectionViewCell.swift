@@ -11,6 +11,7 @@ import LiveKit
 
 class ISMLiveCallCollectionViewCell: UICollectionViewCell {
     
+    var status : ISMCallStatus?
     let profileView = ProfileView()
     public let callStatus = UILabel()
     public var name =  UILabel()
@@ -99,9 +100,10 @@ class ISMLiveCallCollectionViewCell: UICollectionViewCell {
             videoView.track = track
             profileView.isHidden = true
             self.bringSubviewToFront(videoView)
-        }else{
+        }else if  status == .started {
+           
+            videoView.track = nil
             profileView.isHidden = false
- 
             var memberName : String = "Unknown"
                 if let member = ISMCallManager.shared.members?.first(where: {
                     $0.memberId == participant?.identity?.stringValue
