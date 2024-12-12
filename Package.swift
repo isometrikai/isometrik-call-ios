@@ -13,10 +13,10 @@ let package = Package(
             targets: ["ISMSwiftCall"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/livekit/client-sdk-swift", from: "2.0.6"),
-        .package(url: "https://github.com/emqx/CocoaMQTT.git", from: "2.1.6"),
+        .package(url: "https://github.com/livekit/client-sdk-swift", from: "2.0.19"),
+        .package(url: "https://github.com/emqx/CocoaMQTT.git", from: "2.1.8"),
         .package(url: "https://github.com/daltoniam/Starscream", exact: "4.0.4"),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.11.0"),
+        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0"),
         .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", from: "5.0.2")
     ],
     targets: [
