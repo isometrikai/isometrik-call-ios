@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftyJSON
 import UIKit
 
 
@@ -134,7 +133,7 @@ struct ISMCallAPIManager {
                 completion(.failure(.invalidResponse))
                 return
             }
-            print(JSON(data))
+            //print(JSON(data))
             
             switch httpResponse.statusCode {
             case 200:

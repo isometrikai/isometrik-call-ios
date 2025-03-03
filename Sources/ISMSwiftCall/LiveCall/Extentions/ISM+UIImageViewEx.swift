@@ -6,27 +6,41 @@
 //
 
 import Foundation
-import Kingfisher
 import UIKit
 
+
 extension UIImageView : AppearanceProvider{
+    private static let imageCache = NSCache<NSString, UIImage>()
     
-    func setImage(urlString: String?,placeholderImage : UIImage? = nil){
+    func setImage(urlString: String?, placeholderImage: UIImage? = nil) {
+        var image: UIImage
         
-        var image : UIImage
-        
-        if let placeholderImage{
+        if let placeholderImage {
             image = placeholderImage
-        }else{
+        } else {
             image = appearance.images.profileAvatar
         }
-        guard let urlString ,let url = URL(string: urlString) else{
+        
+        guard let urlString, let url = URL(string: urlString) else {
             self.image = image
             return
         }
-       
-        self.kf.setImage(with:url,placeholder: image)
+        
+        if let cachedImage = UIImageView.imageCache.object(forKey: urlString as NSString) {
+            self.image = cachedImage
+            return
+        }
+        
+        self.image = image
+        
+        DispatchQueue.global(qos: .background).async {
+            if let data = try? Data(contentsOf: url), let downloadedImage = UIImage(data: data) {
+                UIImageView.imageCache.setObject(downloadedImage, forKey: urlString as NSString)
+                
+                DispatchQueue.main.async {
+                    self.image = downloadedImage
+                }
+            }
+        }
     }
-    
 }
-

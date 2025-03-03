@@ -15,19 +15,16 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/livekit/client-sdk-swift", from: "2.0.19"),
         .package(url: "https://github.com/emqx/CocoaMQTT.git", from: "2.1.8"),
-        .package(url: "https://github.com/daltoniam/Starscream", exact: "4.0.4"),
-        .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.12.0"),
-        .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", from: "5.0.2")
+        .package(url: "https://github.com/daltoniam/Starscream", exact: "4.0.4")
     ],
     targets: [
         .target(
             name: "ISMSwiftCall",
-            dependencies: [ .product(name: "Kingfisher", package: "kingfisher"),
+            dependencies: [
                             .product(name: "LiveKit", package: "client-sdk-swift"),
                             .product(name: "CocoaMQTT", package: "cocoamqtt"),
                             .product(name: "CocoaMQTTWebSocket", package: "cocoamqtt"),
-                            .product(name: "Starscream", package: "starscream"),
-                            .product(name: "SwiftyJSON", package: "swiftyjson")],
+                            .product(name: "Starscream", package: "starscream")],
             resources: [.process("Sounds")]
             ),
     ],
