@@ -13,7 +13,7 @@ let package = Package(
             targets: ["ISMSwiftCall"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/livekit/client-sdk-swift", from: "2.0.6"),
+        .package(url: "https://github.com/livekit/client-sdk-swift", from: "2.3.0"),
         .package(url: "https://github.com/emqx/CocoaMQTT.git", from: "2.1.6"),
         .package(url: "https://github.com/daltoniam/Starscream", exact: "4.0.4")
     ],
