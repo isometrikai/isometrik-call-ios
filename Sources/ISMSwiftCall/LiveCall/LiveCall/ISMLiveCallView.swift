@@ -456,7 +456,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             do {
                 try await room.connect(url: ISMConfiguration.getIsometrikLiveStreamUrl(), token: rtcToken,connectOptions: connectOptions,roomOptions: roomOptions)
                 /* Publish camera & mic*/
-                try await room.localParticipant.setMicrophone(enabled: true)
+                let options = AudioCaptureOptions(noiseSuppression: false, highpassFilter: false)
+                try await room.localParticipant.setMicrophone(enabled: true,captureOptions: options)
                 try await room.localParticipant.setCamera(enabled: callType != .AudioCall)
                 
             } catch {

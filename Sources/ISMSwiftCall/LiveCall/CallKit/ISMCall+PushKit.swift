@@ -84,14 +84,6 @@ public extension ISMCallManager{
                             ISMCallManager.shared.publishMessage(message: .callRingingMessage)
                         }
                         
-                        DispatchQueue.global(qos: .default).async {
-                            do {
-                                try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .voiceChat)
-                            } catch {
-                                print("audioSession error: \(error.localizedDescription)")
-                            }
-                        }
-                        
                         completion?()
                     }
                 })
