@@ -13,30 +13,30 @@ extension ISMLiveCallView : ISMExpandableCallControlsViewDelegate{
     
     // Turn on speaker
     func turnOnSpeaker() {
-        do {
+//        do {
 //            try AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .voiceChat, options: .defaultToSpeaker)
 //            try AVAudioSession.sharedInstance().setActive(true)
             
-            let session = AVAudioSession.sharedInstance()
-                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
-            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.speaker) // Set preferred output port
-                  try session.setActive(true)
-            
-        } catch {
-            print("Error setting audio session category: \(error)")
-        }
+//            let session = AVAudioSession.sharedInstance()
+//                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
+//            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.speaker) // Set preferred output port
+//                  try session.setActive(true)
+//            
+//        } catch {
+//            print("Error setting audio session category: \(error)")
+//        }
     }
 
     // Turn off speaker
     func turnOffSpeaker() {
-        do {
-            let session = AVAudioSession.sharedInstance()
-                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
-            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.none) // Set preferred output port
-                  try session.setActive(true)
-        } catch {
-            print("Error setting audio session category: \(error)")
-        }
+//        do {
+//            let session = AVAudioSession.sharedInstance()
+//                  try session.setPreferredOutputNumberOfChannels(2) // Set number of output channels
+//            try session.overrideOutputAudioPort(AVAudioSession.PortOverride.none) // Set preferred output port
+//                  try session.setActive(true)
+//        } catch {
+//            print("Error setting audio session category: \(error)")
+//        }
     }
     
     func didTapSwitchAudioOutput() {

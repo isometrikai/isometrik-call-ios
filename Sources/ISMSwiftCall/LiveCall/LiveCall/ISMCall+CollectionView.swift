@@ -65,10 +65,13 @@ extension ISMLiveCallView: UICollectionViewDataSource, UICollectionViewDelegateF
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ISMLiveCallCollectionViewCell", for: indexPath) as! ISMLiveCallCollectionViewCell
         
-                 let participant = remoteParticipants[indexPath.row]
-
-               cell.status = self.callStatus
-               cell.participant = participant
+            
+            if indexPath.row < remoteParticipants.count{
+                let participant = remoteParticipants[indexPath.row]
+                cell.status = self.callStatus
+                cell.participant = participant
+            }
+              
         
             return cell
         }

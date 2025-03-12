@@ -396,13 +396,13 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     
     func playAudio(){
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(.soloAmbient)
-            try audioSession.setActive(true)
-        } catch {
-            print("Setting category to AVAudioSessionCategoryPlayback failed.")
-        }
+//        let audioSession = AVAudioSession.sharedInstance()
+//        do {
+//            try audioSession.setCategory(.soloAmbient)
+//            try audioSession.setActive(true)
+//        } catch {
+//            print("Setting category to AVAudioSessionCategoryPlayback failed.")
+//        }
         
         
         if !appearance.soundFiles.ringer.isEmpty {
@@ -432,6 +432,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
     
     
     func connect(){
+        
+        
         let connectOptions = ConnectOptions(
             autoSubscribe: true /* don't autosubscribe if publish mode*/
         )
@@ -456,8 +458,8 @@ class ISMLiveCallView: UIView, ISMCustomNavigationBarDelegate, AppearanceProvide
             do {
                 try await room.connect(url: ISMConfiguration.getIsometrikLiveStreamUrl(), token: rtcToken,connectOptions: connectOptions,roomOptions: roomOptions)
                 /* Publish camera & mic*/
-                let options = AudioCaptureOptions(noiseSuppression: false, highpassFilter: false)
-                try await room.localParticipant.setMicrophone(enabled: true,captureOptions: options)
+             
+               
                 try await room.localParticipant.setCamera(enabled: callType != .AudioCall)
                 
             } catch {

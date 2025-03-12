@@ -45,6 +45,12 @@ extension ISMLiveCallView : RoomDelegate{
         switch connectionState {
         case .connected:
             
+            Task { @MainActor in
+                       do {
+                             try await room.localParticipant.setMicrophone(enabled: true)
+                        } catch {}
+                   }
+            
             if callStatus == .reconnecting {
                 
                 if oldValue == .connecting{
