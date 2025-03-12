@@ -136,8 +136,10 @@ public class ISMCallManager: NSObject {
         
         callConnectedTime = Date().addingTimeInterval(-2)
         self.cancelHangupTimer()
+        self.provider.reportOutgoingCall(with:outgoingCallID , connectedAt: callConnectedTime)
         self.outgoingCallID = nil // clear the outgoingCallId to avoid the hangup case of no answer
-        self.provider.reportOutgoingCall(with: ISMCallManager.shared.callIDs.first!, connectedAt: callConnectedTime)
+       
+       
     }
     
     
