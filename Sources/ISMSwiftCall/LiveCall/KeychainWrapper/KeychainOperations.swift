@@ -3,7 +3,14 @@ import Security
 
 internal class KeychainOperations: NSObject {
     // Unique identifier for SDK keychain entries
-    private static let sdkServiceName = "com.isometrik.call.keychain"
+    // Generate unique service name based on host app's bundle ID
+     private static var sdkServiceName: String {
+         guard let bundleID = Bundle.main.bundleIdentifier else {
+             return "com.isometrik.call.keychain.unknownApp"
+         }
+         return "com.isometrik.call.keychain.\(bundleID)"
+     }
+    
     private static let sdkPrefix = "ISMCall_"
 
     /**
