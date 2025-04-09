@@ -2,72 +2,62 @@ import Foundation
 import Security
 
 internal class KeychainOperations: NSObject {
+    // Unique identifier for SDK keychain entries
+    private static let sdkServiceName = "com.isometrik.call.keychain"
+    private static let sdkPrefix = "ISMCall_"
+
     /**
      Function to add an item to keychain
-     - parameters:
-       - value: Value to save in `data` format (String, Int, Double, Float, etc)
-       - account: Account name for keychain item
      */
     internal static func add(value: Data, account: String) throws {
-        guard let service = Bundle.main.bundleIdentifier else{
-            return
-        }
+        let prefixedAccount = sdkPrefix + account
         
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
-            kSecAttrService as String: service,
+            kSecAttrAccount as String: prefixedAccount,
+            kSecAttrService as String: sdkServiceName,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
             kSecValueData as String: value
         ]
-        
+
         let status = SecItemAdd(query as CFDictionary, nil)
         guard status == errSecSuccess else { throw KeychainError.operationError }
     }
 
     /**
-     Function to update an item to keychain
-     - parameters:
-       - value: Value to replace for
-       - account: Account name for keychain item
+     Function to update an item in keychain
      */
     internal static func update(value: Data, account: String) throws {
-        guard let service = Bundle.main.bundleIdentifier else{
-            return
-        }
-        
+        let prefixedAccount = sdkPrefix + account
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
-            kSecAttrService as String: service
+            kSecAttrAccount as String: prefixedAccount,
+            kSecAttrService as String: sdkServiceName
         ]
-        
+
         let attributes: [String: Any] = [
             kSecValueData as String: value
         ]
-        
+
         let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         guard status == errSecSuccess else { throw KeychainError.operationError }
     }
 
     /**
      Function to retrieve an item from keychain
-     - parameters:
-       - account: Account name for keychain item
      */
     internal static func retrieve(account: String) throws -> Data? {
-        guard let service = Bundle.main.bundleIdentifier else{
-            return nil
-        }
+        let prefixedAccount = sdkPrefix + account
         
         var result: AnyObject?
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
-            kSecAttrService as String: service,
+            kSecAttrAccount as String: prefixedAccount,
+            kSecAttrService as String: sdkServiceName,
             kSecReturnData as String: true
         ]
-        
+
         let status = SecItemCopyMatching(query as CFDictionary, &result)
         switch status {
         case errSecSuccess:
@@ -81,54 +71,46 @@ internal class KeychainOperations: NSObject {
 
     /**
      Function to delete a single item
-     - parameters:
-       - account: Account name for keychain item
      */
     internal static func delete(account: String) throws {
-        guard let service = Bundle.main.bundleIdentifier else{
-            return
-        }
-        
+        let prefixedAccount = sdkPrefix + account
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
-            kSecAttrService as String: service
+            kSecAttrAccount as String: prefixedAccount,
+            kSecAttrService as String: sdkServiceName
         ]
-        
+
         let status = SecItemDelete(query as CFDictionary)
-        guard status == errSecSuccess else { throw KeychainError.operationError }
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainError.operationError }
     }
 
     /**
-     Function to delete all items for the app
+     Function to delete all SDK-specific keychain items
      */
     internal static func deleteAll() throws {
         let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: sdkServiceName
         ]
-        
+
         let status = SecItemDelete(query as CFDictionary)
-        guard status == errSecSuccess else { throw KeychainError.operationError }
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainError.operationError }
     }
 
     /**
      Function to check if a keychain item exists
-     - parameters:
-       - account: String type with the name of the item to check
-     - returns: Boolean type with the answer if the keychain item exists
      */
     internal static func exists(account: String) throws -> Bool {
-        guard let service = Bundle.main.bundleIdentifier else{
-            return false
-        }
-        
+        let prefixedAccount = sdkPrefix + account
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account,
-            kSecAttrService as String: service,
+            kSecAttrAccount as String: prefixedAccount,
+            kSecAttrService as String: sdkServiceName,
             kSecReturnData as String: false
         ]
-        
+
         let status = SecItemCopyMatching(query as CFDictionary, nil)
         switch status {
         case errSecSuccess:
@@ -136,9 +118,7 @@ internal class KeychainOperations: NSObject {
         case errSecItemNotFound:
             return false
         default:
-            throw KeychainError.creatingError
+            throw KeychainError.operationError
         }
     }
 }
-
-
